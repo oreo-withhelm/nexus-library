@@ -12,7 +12,8 @@ local colors = {
     ["primary-text"] = Color(194, 194, 194),
     ["secondary-text"] = Color(129, 129, 129),
 
-    ["overlay"] = Color(200, 200, 200, 20)
+    ["overlay"] = Color(200, 200, 200, 20),
+    ["green"] = Color(40, 204, 95),
 }
 
 function Nexus:GetColor(str)

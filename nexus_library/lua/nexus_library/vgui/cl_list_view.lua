@@ -146,7 +146,7 @@ AccessorFunc(PANEL, "m_bHideHeaders", "HideHeaders")
 Derma_Hook(PANEL, "Paint", "Paint", "ListView")
 
 function PANEL:Init()
-    self.margin = Nexus:Scale(10)
+    self.margin = Nexus:GetMargin("normal")
 
 	self:SetSortable(true)
 	self:SetMouseInputEnabled(true)
@@ -170,13 +170,12 @@ function PANEL:Init()
 	self.VBar = vgui.Create("DVScrollBar", self)
 	self.VBar:SetZPos(20)
 	self.VBar:SetHideButtons(true)
-
 	self.VBar.Paint = function(s, w, h)
-		draw.RoundedBox(self.margin, 0, 0, w, h, col)
+		draw.RoundedBox(Nexus:GetMargin("small"), 0, 0, w, h, Nexus:GetColor("header"))
 	end
 
 	self.VBar.btnGrip.Paint = function(s, w, h)
-		Nexus:DrawRoundedGradient(0, 0, w, h, Nexus.Colors.Primary)
+		draw.RoundedBox(Nexus:GetMargin("small"), 0, 0, w, h, Nexus:GetColor("primary-text"))
 	end
 end
 
@@ -309,8 +308,8 @@ function PANEL:PerformLayout()
 	local Wide = self:GetWide()
 	local YPos = 0
 	if (IsValid(self.VBar)) then
-		self.VBar:SetPos(self:GetWide() - Nexus:Scale(12), 0)
-		self.VBar:SetSize(Nexus:Scale(12), self:GetTall())
+		self.VBar:SetPos(self:GetWide() - Nexus:GetMargin("small"), 0)
+		self.VBar:SetSize(Nexus:GetMargin("small"), self:GetTall())
 		self.VBar:SetUp(self.VBar:GetTall() - self:GetHeaderHeight(), self.pnlCanvas:GetTall())
 		YPos = self.VBar:GetOffset()
 
@@ -597,8 +596,12 @@ function PANEL:SizeToContents()
 	self:SetHeight(self.pnlCanvas:GetTall() + self:GetHeaderHeight())
 end
 
+function PANEL:SetColor(col)
+	self.col = col
+end
+
 function PANEL:Paint(w, h)
-    draw.RoundedBox(self.margin, 0, 0, w, h, Nexus.Colors.Background)
+    draw.RoundedBox(self.margin, 0, 0, w, h, self.col or Nexus.Colors.Background)
 end
 
 function PANEL:DoDoubleClick(LineID, Line, mx, my)

@@ -17,10 +17,16 @@ function Nexus:ChatMessage(ply, tbl)
 end
 
 util.AddNetworkString("Nexus:Notification")
-function Nexus:Notify(ply, int, seconds, str)
+function Nexus:Notify(ply, int, seconds, str, addonPhrase)
     if not IsValid(ply) then return end
     net.Start("Nexus:Notification")
-    net.WriteString(str)
+    net.WriteBool(addonPhrase and true or false)
+    if addonPhrase then
+        net.WriteString(str)
+        net.WriteString(addonPhrase)
+    else
+        net.WriteString(str)
+    end
     net.WriteUInt(int, 2)
     net.WriteUInt(seconds, 5)
     net.Send(ply)

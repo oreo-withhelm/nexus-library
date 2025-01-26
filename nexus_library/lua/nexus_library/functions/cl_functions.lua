@@ -11,6 +11,7 @@ function Nexus:CreateFrame(title, w, h)
     local frame = vgui.Create("Nexus:Frame")
     frame:SetTitle(title)
     frame:SetSize(Nexus:Scale(w), Nexus:Scale(h))
+
     Nexus.Frame = frame
     return frame
 end
@@ -45,15 +46,15 @@ function Nexus:Overhead(ent, str, override, secondaryStr)
 
     cam.Start3D2D(pos + ent:GetUp() * (override or 80), Angle(0, eyeAngle.y - 90, 90), 0.05)
         local y = secondaryStr and -tall*1.8 or 0 - (tall/2)
-        draw.RoundedBox(10, -wide/2, y, wide, tall, Nexus.Colors.Background)
-        draw.SimpleText(str, font, 0, y + tall/2, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        draw.RoundedBox(10, -wide/2, y, wide, tall, Nexus:GetColor("background"))
+        draw.SimpleText(str, font, 0, y + tall/2, Nexus:GetColor("primary-text"), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 
         if secondaryStr then
             local tw, th = surface.GetTextSize(secondaryStr)
             local wide = tw + Nexus:Scale(150)
             local tall = th + Nexus:Scale(60)
-            draw.RoundedBox(10, -wide/2, y + tall + 10, wide, tall, Nexus.Colors.Background)
-            draw.SimpleText(secondaryStr, font, 0, y + tall + 10 + tall/2, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+            draw.RoundedBox(10, -wide/2, y + tall + 10, wide, tall, Nexus:GetColor("background"))
+            draw.SimpleText(secondaryStr, font, 0, y + tall + 10 + tall/2, Nexus:GetColor("primary-text"), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
         end
     cam.End3D2D()
 end
@@ -74,7 +75,16 @@ net.Receive("Nexus:ChatMessage", function()
 end)
 
 net.Receive("Nexus:Notification", function()
-    notification.AddLegacy(net.ReadString(), net.ReadUInt(2), net.ReadUInt(5))
+    local isPhrase = net.ReadBool()
+    local str = net.ReadString()
+    local addon = ""
+    if isPhrase then
+        addon = net.ReadString()
+        addon = addon ~= "" and addon or false
+    end
+
+    local err, time = net.ReadUInt(2), net.ReadUInt(5)
+    notification.AddLegacy(isPhrase and Nexus:GetPhrase(str, addon) or str, err, time)
 end)
 
 function Nexus:StringQuery(title, text, callback)

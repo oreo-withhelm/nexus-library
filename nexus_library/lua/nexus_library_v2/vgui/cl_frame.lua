@@ -1,5 +1,7 @@
 local PANEL = {}
 function PANEL:Init()
+    self.languages = Nexus:GetLanguages()
+
     local accentalpha = Color(Nexus:GetColor("accent").r, Nexus:GetColor("accent").b, Nexus:GetColor("accent").b, 210)
     self.Header = self:Add("Panel")
     self.Header:Dock(TOP)
@@ -106,6 +108,19 @@ function PANEL:Init()
 
     self:AddHeaderButton(Nexus:GetCurFlag(), function()
         Nexus:DermaMenu(self.languages, function(value)
+            if not Nexus:IsLanguageLoaded(value) then
+                Nexus:QueryPopup(string.format(Nexus:GetInstalledText(value, "download"), value), function()
+                    Nexus:LoadLanguage(value, function()
+                        if IsValid(self) then
+                            Nexus:SetSetting("nexus_language", value)
+                            self:OnRefresh()
+                        end
+                    end)
+                end, nil, Nexus:GetInstalledText(value, "yes"), Nexus:GetInstalledText(value, "no"))
+
+                return
+            end
+
             Nexus:SetSetting("nexus_language", value)
             self:OnRefresh()
         end)
@@ -173,8 +188,8 @@ function PANEL:SetBarIcon(icon, title, subheading, doClick)
     self.BarButton:Show()
 end
 
-function PANEL:SetLanguages(languages)
-    self.languages = languages
+function PANEL:HideHeaderButton()
+    self.Header.QuickButtons:Hide()
 end
 
 function PANEL:AddHeaderButton(icon, doClick)
@@ -212,60 +227,3 @@ function PANEL:Paint(w, h)
     Nexus:DrawRoundedGradient(0, 0, w, h, color_zero, self.overlay, Nexus:GetMargin("large"))
 end
 vgui.Register("Nexus:V2:Frame", PANEL, "EditablePanel")
-
-function GenerateFrame()
-    if IsValid(Nexus.Frame) then Nexus.Frame:Remove() end
-    local frame = vgui.Create("Nexus:V2:Frame")
-    frame:SetSize(Nexus:GetScale(1000), Nexus:GetScale(800))
-    frame:Center()
-    frame:MakePopup()
-    frame:SetBarIcon("https://imgur.com/K7q22tm", Nexus:GetPhrase("Title"), Nexus:GetPhrase("Subheading"), function() end)
-    frame:SetLanguages({"en", "fr", "a", "b", "c"})
-    frame.OnRefresh = function(a)
-        Nexus:GenerateFrame()
-    end
-    Nexus.Frame = frame
-
-    local scroll = frame:Add("Nexus:V2:ScrollPanel")
-    scroll:Dock(FILL)
-    scroll:DockMargin(Nexus:GetMargin("normal"), Nexus:GetMargin("normal"), 0, Nexus:GetMargin("normal"))
-
-    local sidebar = frame:Add("Nexus:V2:Sidebar")
-    sidebar:Dock(LEFT)
-    sidebar:SetWide(Nexus:GetScale(150))
-    sidebar:SetMask({Nexus:GetMargin("large"), false, false, true, false})
-
-    for i = 1, 100 do
-        sidebar:AddItem(Nexus:GetPhrase("Server Name"), function()
-        end, math.random(1, 2) == 2 and "https://imgur.com/2gTwRFi.png" or false)
-
-        if i % 5 == 0 then
-            sidebar:AddSpacer()
-        end
-    end
-
-    local navbar = frame:Add("Nexus:V2:Navbar")
-    navbar:Dock(TOP)
-    navbar:DockMargin(Nexus:GetMargin("normal"), Nexus:GetMargin("normal"), Nexus:GetMargin("normal"), 0)
-
-    for i = 1, 10 do
-        navbar:AddItem(Nexus:GetPhrase("Server Name"), function() end, math.random(1, 2) == 2 and "https://imgur.com/2gTwRFi.png" or false)
-    end
-
-    local navbar = frame:Add("Nexus:V2:Navbar")
-    navbar:Dock(TOP)
-    navbar:DockMargin(Nexus:GetMargin("normal"), Nexus:GetMargin("normal"), Nexus:GetMargin("normal"), 0)
-
-    for i = 1, 20 do
-        navbar:AddItem(Nexus:GetPhrase("Server Name"), function() end, math.random(1, 2) == 2 and "https://imgur.com/2gTwRFi.png" or false)
-    end
-
-    local textEntry = frame:Add("Nexus:V2:TextEntry")
-    textEntry:Dock(TOP)
-    textEntry:DockMargin(Nexus:GetMargin("normal"), Nexus:GetMargin("normal"), Nexus:GetMargin("normal"), 0)
-    textEntry:SetPlaceholder(Nexus:GetPhrase("Search"))
-end
-
-concommand.Add("nexus_examples", function()
-    GenerateFrame()
-end)

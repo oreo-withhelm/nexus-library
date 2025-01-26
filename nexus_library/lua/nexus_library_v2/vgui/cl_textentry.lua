@@ -1,12 +1,9 @@
 local PANEL = {}
-AccessorFunc(PANEL, "Placeholder", "Placeholder")
 AccessorFunc(PANEL, "PlaceholderColor", "PlaceholderColor")
-AccessorFunc(PANEL, "Disabled", "Disabled", FORCE_BOOL)
 function PANEL:Init()
 	self:SetTall(Nexus:GetScale(35))
 	self.margin = Nexus:Scale(10)
 
-    self:SetPlaceholder("")
 	self:SetPlaceholderColor(Nexus:GetColor("secondary-text"))
 
 	self.TextEntry = self:Add("DTextEntry")
@@ -30,14 +27,36 @@ function PANEL:Init()
 	self.TextEntry.OnEnter = function(s)
 		self:OnEnter()
 	end
+	self.TextEntry.OnGetFocus = function(s)
+		self:OnGetFocus()
+	end
+	self.TextEntry.OnLoseFocus = function(s)
+		self:OnLoseFocus()
+	end
+
+	self.TextEntry:SetTooltipDelay(.2)
 end
 
+function PANEL:SetPlaceholder(str)
+	self.placeholder = str
+	if str == "" then
+		self.TextEntry:SetTooltip(nil)
+		return
+	else
+		self.TextEntry:SetTooltip(str)
+	end
+end
+
+function PANEL:GetPlaceholder()
+	return self.placeholder
+end
+
+function PANEL:OnLoseFocus() end
+function PANEL:OnGetFocus() end
 function PANEL:OnEnter() end
 function PANEL:OnChange() end
 function PANEL:SetNumeric(bool) self.TextEntry:SetNumeric(true) end
 function PANEL:GetNumeric() return self.TextEntry:GetNumeric() end
-function PANEL:SetUpdateOnType(bool) self.TextEntry:SetUpdateOnType(true) end
-function PANEL:GetUpdateOnType() return self.TextEntry:GetUpdateOnType() end
 function PANEL:OnValueChange() end
 function PANEL:GetValue() return self.TextEntry:GetValue() end
 function PANEL:SetFont(str)

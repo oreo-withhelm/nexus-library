@@ -32,6 +32,8 @@ function PANEL:SetSecondary()
 end
 
 function PANEL:AutoWide(extras)
+    extras = extras or 0
+
     surface.SetFont(self:GetFont())
     local tw, th = surface.GetTextSize(self:GetText())
     self:SetWide(tw + self.margin*2 + extras)
@@ -49,7 +51,7 @@ function PANEL:Paint(w, h)
         Nexus:DrawImgur(self.icon, x, x, size, size, color_white)
     end
 
-    if self:IsHovered() or self.Clicked then
+    if self:IsHovered() then
         draw.RoundedBox(self.margin, 0, h - h, w, h, Nexus:GetColor("overlay"))
     end
 end

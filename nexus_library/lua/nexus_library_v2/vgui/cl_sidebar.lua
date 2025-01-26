@@ -103,7 +103,7 @@ function PANEL:DrawSidebar(w, h)
     local col = Nexus:GetColor("secondary")
     surface.SetDrawColor(col.r, col.g, col.b, col.a)
     surface.DrawRect(w - Nexus:GetScale(2), 0, Nexus:GetScale(2), h)
-end    
+end
 
 function PANEL:Paint(w, h)
     if self.mask then

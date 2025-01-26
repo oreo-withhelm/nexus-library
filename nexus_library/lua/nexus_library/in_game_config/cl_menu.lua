@@ -1,10 +1,10 @@
 local PANEL = {}
 function PANEL:Init()
-    self.margin = Nexus:Scale(10)
+    self.margin = Nexus:GetMargin("normal")
     self.Panels = {}
     self.Tables = {}
 
-    self.Navbar = self:Add("Nexus:Navbar")
+    self.Navbar = self:Add("Nexus:V2:Navbar")
     self.Navbar:Dock(TOP)
     self.Navbar:DockMargin(self.margin, self.margin, self.margin, 0)
 
@@ -38,7 +38,7 @@ end
 function PANEL:SelectContent(data)
     if IsValid(self.content) then self.content:Remove() end
 
-    self.content = self:Add("Nexus:ScrollPanel")
+    self.content = self:Add("Nexus:V2:ScrollPanel")
     self.content:Dock(FILL)
     self.content:DockMargin(self.margin, self.margin, self.margin, self.margin)
 
@@ -57,7 +57,7 @@ function PANEL:SelectContent(data)
             end
 
             for int, buttonDATA in ipairs(dat or {}) do
-                local button = self:AddButton(row, buttonDATA.text or "N/A", v.data.showSelected and Nexus.Colors.Primary or buttonDATA.color, function()
+                local button = self:AddButton(row, buttonDATA.text or "N/A", v.data.showSelected and Nexus:GetColor("secondary") or buttonDATA.color, function()
                     net.Start("Nexus:IGC:V2:UpdateValue")
                         net.WriteString(v.id)
                         net.WriteString(v.data.id)
@@ -68,7 +68,7 @@ function PANEL:SelectContent(data)
                 table.Add(buttons, {{id = v.data.id, button = button, buttonDATA = buttonDATA}})
 
                 if v.data.showSelected and Nexus:GetValue(v.data.id) == buttonDATA.value then
-                    button:SetColor(Nexus.Colors.Green)
+                    button:SetColor(Nexus:GetColor("green"))
                 end
             end
 
@@ -76,14 +76,14 @@ function PANEL:SelectContent(data)
                 if not v.data.showSelected then return end
 
                 for _, v in ipairs(buttons) do
-                    v.button:SetColor(Nexus:GetValue(v.id) == v.buttonDATA.value and Nexus.Colors.Green or Nexus.Colors.Primary)
+                    v.button:SetColor(Nexus:GetValue(v.id) == v.buttonDATA.value and Nexus:GetColor("green") or Nexus:GetColor("secondary"))
                 end
             end
         elseif v.id == "text-entry" then
             local row = self:AddRow()
 
             local textEntry = self:AddTextEntry(row, Nexus:GetValue(v.data.id), v.data.placeholder, nil, nil, v.data.isNumeric)
-            self:AddButton(row, "   Save   ", Nexus.Colors.Green, function()
+            self:AddButton(row, "   Save   ", Nexus:GetColor("secondary"), function()
                 local value = textEntry:GetText()
                 net.Start("Nexus:IGC:V2:UpdateValue")
                     net.WriteString(v.id)
@@ -104,7 +104,7 @@ function PANEL:SelectContent(data)
                 entries[v.id] = self:AddTextEntry(row, data[v.id] or v.default, v.placeholder, nil, Nexus:Scale(150), v.isNumeric)
             end
 
-            self:AddButton(row, "   Save   ", Nexus.Colors.Green, function()
+            self:AddButton(row, "   Save   ", Nexus:GetColor("secondary"), function()
                 net.Start("Nexus:IGC:V2:UpdateValue")
                     net.WriteString(v.id)
                     net.WriteString(v.data.id)
@@ -216,7 +216,7 @@ function PANEL:SelectContent(data)
         
                     tall = tall + self.margin + Nexus:Scale(35)
                 elseif v.type == "ComboBox" then
-                    element = Frame:Add("Nexus:ComboBox")
+                    element = Frame:Add("Nexus:V2:ComboBox")
                     element:Dock(TOP)
                     element:DockMargin(self.margin, self.margin, self.margin, 0)
                     element:SetText(v.placeholder)
@@ -228,7 +228,7 @@ function PANEL:SelectContent(data)
                     tall = tall + self.margin + Nexus:Scale(50)
                 end
 
-                local save = Frame:Add("Nexus:Button")
+                local save = Frame:Add("Nexus:V2:Button")
                 save:SetText("Save")
                 save:Dock(TOP)
                 save:DockMargin(self.margin, self.margin, self.margin, 0)
@@ -329,8 +329,8 @@ end
 function PANEL:AddRow()
     local panel = self.content:Add("DPanel")
     panel:Dock(TOP)
-    panel:DockMargin(0, 0, self.margin, self.margin)
-    panel:SetTall(Nexus:Scale(50))
+    panel:DockMargin(0, 0, self.margin, 0)
+    panel:SetTall(Nexus:GetScale(40))
     panel.Paint = nil
 
     return panel
@@ -339,7 +339,7 @@ end
 function PANEL:AddLabel(text, margin, size)
     local label = self.content:Add("DLabel")
     label:Dock(TOP)
-    label:DockMargin(0, 0, 0, margin or self.margin)
+    label:DockMargin(0, 0, 0, Nexus:GetMargin("normal"))
     label:SetText(text)
     label:SetFont(Nexus:GetFont(25))
     label:SetTextColor(Nexus:GetTextColor(Nexus.Colors.Background))
@@ -353,10 +353,10 @@ function PANEL:AddLabel(text, margin, size)
 end
 
 function PANEL:AddButton(row, text, col, onClick)
-    local button = row:Add("Nexus:Button")
+    local button = row:Add("Nexus:V2:Button")
     button:Dock(LEFT)
     button:DockMargin(0, 0, self.margin, 0)
-    button:SetColor(col or Nexus.Colors.Primary)
+    button:SetColor(col or Nexus:GetColor("secondary"))
     button:SetText(text)
     button:AutoWide()
     button.DoClick = function()
@@ -370,13 +370,11 @@ function PANEL:AddTextEntry(row, text, placeholder, min, max, isNumeric)
     min = min or Nexus:Scale(100)
     max = max or Nexus:Scale(600)
 
-    local textEntry = row:Add("Nexus:TextEntry")
+    local textEntry = row:Add("Nexus:V2:TextEntry")
     textEntry:Dock(LEFT)
     textEntry:DockMargin(0, 0, self.margin, 0)
     textEntry:SetText(text)
     textEntry:SetPlaceholder(placeholder)
-    textEntry:SetTooltip(placeholder)
-    textEntry:SetTooltipDelay(0)
 
     if isNumeric then
         textEntry:SetNumeric(true)
@@ -407,8 +405,8 @@ function PANEL:AddKeyTable(tbl, func)
     row:DockPadding(1, 1, 1, 1)
     row:SetTall(Nexus:Scale(200))
     row.Paint = function(s, w, h)
-        Nexus:DrawRoundedGradient(0, 0, w, h, Nexus.Colors.Primary)
-        draw.RoundedBox(self.margin, 1, 1, w-2, h-2, Nexus.Colors.Background)
+        draw.RoundedBox(self.margin, 0, 0, w, h, Nexus:GetColor("primary-text"))
+        draw.RoundedBox(self.margin, 1, 1, w-2, h-2, Nexus:GetColor("header"))
     end
 
     local leftPanel = row:Add("Panel")
@@ -416,28 +414,28 @@ function PANEL:AddKeyTable(tbl, func)
     leftPanel:DockMargin(0, 0, 0, 0)
     leftPanel:SetWide(Nexus:Scale(200))
 
-    local textEntry = leftPanel:Add("Nexus:TextEntry")
+    local textEntry = leftPanel:Add("Nexus:V2:TextEntry")
     textEntry:Dock(TOP)
     textEntry:DockMargin(self.margin, self.margin, self.margin, 0)
     textEntry:SetTall(Nexus:Scale(50))
     textEntry:SetPlaceholder(tbl.placeholder)
-    textEntry:SetTooltip(tbl.placeholder)
-    textEntry:SetTooltipDelay(0)
 
     local form = row:Add("Nexus:ListView")
     form:Dock(FILL)
     form:DockMargin(0, 0, self.margin, 0)
     form:AddColumn(tbl.placeholder)
+    form:SetColor(Nexus:GetColor("secondary"))
     for id, bool in pairs(data) do
         if not bool then continue end
         form:AddLine(id)
     end
 
-    local saveButton = leftPanel:Add("Nexus:Button")
+    local saveButton = leftPanel:Add("Nexus:V2:Button")
     saveButton:Dock(TOP)
     saveButton:DockMargin(self.margin, self.margin, self.margin, 0)
     saveButton:SetTall(Nexus:Scale(50))
     saveButton:SetText("Add")
+    saveButton:SetColor(Nexus:GetColor("green"))
     saveButton.DoClick = function(s)
         func(true, textEntry:GetText())
     end
@@ -452,8 +450,8 @@ function PANEL:AddTable(tbl, func)
     local row = self:AddRow()
     row:DockPadding(1, 1, 1, 1)
     row.Paint = function(s, w, h)
-        Nexus:DrawRoundedGradient(0, 0, w, h, Nexus.Colors.Primary)
-        draw.RoundedBox(self.margin, 1, 1, w-2, h-2, Nexus.Colors.Background)
+        draw.RoundedBox(self.margin, 0, 0, w, h, Nexus:GetColor("primary-text"))
+        draw.RoundedBox(self.margin, 1, 1, w-2, h-2, Nexus:GetColor("header"))
     end
 
     local leftPanel = row:Add("Panel")
@@ -470,7 +468,7 @@ function PANEL:AddTable(tbl, func)
         form:AddColumn(v.placeholder or "")
 
         if v.type == "TextEntry" then
-            local textEntry = leftPanel:Add("Nexus:TextEntry")
+            local textEntry = leftPanel:Add("Nexus:V2:TextEntry")
             textEntry:Dock(TOP)
             textEntry:DockMargin(self.margin, self.margin, self.margin, 0)
             textEntry:SetTall(Nexus:Scale(50))
@@ -491,7 +489,7 @@ function PANEL:AddTable(tbl, func)
 
             tall = tall + self.margin + Nexus:Scale(35)
         elseif v.type == "ComboBox" then
-            local comboBox = leftPanel:Add("Nexus:ComboBox")
+            local comboBox = leftPanel:Add("Nexus:V2:ComboBox")
             comboBox:Dock(TOP)
             comboBox:DockMargin(self.margin, self.margin, self.margin, 0)
             comboBox:SetText(v.placeholder)
@@ -516,11 +514,12 @@ function PANEL:AddTable(tbl, func)
         line["oValue"] = args["Chance"]
     end
 
-    local saveButton = leftPanel:Add("Nexus:Button")
+    local saveButton = leftPanel:Add("Nexus:V2:Button")
     saveButton:Dock(TOP)
     saveButton:DockMargin(self.margin, self.margin, self.margin, 0)
     saveButton:SetTall(Nexus:Scale(50))
     saveButton:SetText("Add")
+    saveButton:SetColor(Nexus:GetColor("green"))
     saveButton.DoClick = function(s)
         func(elements)
     end
