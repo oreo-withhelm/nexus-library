@@ -230,6 +230,13 @@ function Nexus:LoadLanguage(lang, callback)
         draw.RoundedBox(Nexus:GetMargin("normal"), 0, 0, w, h, Nexus:GetColor("background"))
         draw.SimpleText(string.format(Nexus:GetInstalledText(lang, "Loading Language Package"), s.loaded, table.Count(Nexus.Languages)), Nexus:GetFont({size = 20}), w/2, h/2, Nexus:GetColor("primary-text"), 1, 1)
     end
+    timer.Simple(20, function()
+        if IsValid(loadingFrame) then
+            loadingFrame:Remove()
+        end
+        loadingFrame:Remove()
+        callback(false)
+    end)
 end
 
 net.Receive("Nexus:UpdateLanguage", function()

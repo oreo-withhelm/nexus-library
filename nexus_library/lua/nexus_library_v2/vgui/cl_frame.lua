@@ -110,8 +110,8 @@ function PANEL:Init()
         Nexus:DermaMenu(self.languages, function(value)
             if not Nexus:IsLanguageLoaded(value) then
                 Nexus:QueryPopup(string.format(Nexus:GetInstalledText(value, "download"), value), function()
-                    Nexus:LoadLanguage(value, function()
-                        if IsValid(self) then
+                    Nexus:LoadLanguage(value, function(success)
+                        if IsValid(self) and success then
                             Nexus:SetSetting("nexus_language", value)
                             self:OnRefresh()
                         end

@@ -47,6 +47,7 @@ net.Receive("Nexus:DownloadLanguage", function(len, ply)
         failed = true
         if not IsValid(ply) then return end
         Nexus:Notify(ply, 0, 3, Nexus:GetInstalledText(languageCode, "Failed load"))
+        Nexus:ChatMessage(ply, {color_white, Nexus:GetInstalledText(languageCode, "Failed load")})
 
         net.Start("Nexus:UpdateLanguage")
         net.WriteBool(false)
@@ -100,7 +101,7 @@ net.Receive("Nexus:DownloadLanguage", function(len, ply)
     
             reqwest({
                 method = "POST",
-                url = urlParam.."/translate",
+                url = string.Replace(urlParam, "\n", ""),
                 timeout = 10,
             
                 body = util.TableToJSON({
@@ -115,7 +116,7 @@ net.Receive("Nexus:DownloadLanguage", function(len, ply)
             
                 success = function(status, body, headers)
                     if status ~= 200 then onFailed() return end
-    
+
                     body = util.JSONToTable(body or "")
                     if not body or not body["translatedText"] then onFailed() return end
                     if failed then return end
