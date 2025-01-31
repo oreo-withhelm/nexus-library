@@ -12,8 +12,6 @@ function PANEL:Init()
         self.Navbar:AddItem(data.name, function()
             self:SelectContent(data)
         end)
-
-        self:SelectContent(data)
     end
 
     hook.Add("Nexus:IGC:ValueChanged", "Nexus:IGC:ValueChanged", function(id, value)

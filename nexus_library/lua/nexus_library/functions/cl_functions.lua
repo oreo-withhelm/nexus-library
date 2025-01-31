@@ -219,6 +219,10 @@ end
 function Nexus:SetSetting(id, value)
     cache[id] = value
     file.Write("nexus_user_settings.txt", util.TableToJSON(cache))
+
+    if id == "nexus_language" then
+        hook.Run("Nexus:LanguageChanged", value)
+    end
 end
 
 Nexus.Colors = Nexus.Themes[Nexus:GetSetting("Nexus-Theme", "Nexus")]

@@ -19,7 +19,7 @@ function PANEL:Init()
 	self:GetCanvas().PerformLayout = function(s, w, h)
 		old(s, w, h)
 		self:AfterPerformLayout(w, h)
-	end 
+	end
 end
 
 function PANEL:AfterPerformLayout(w, h)

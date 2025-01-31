@@ -11,6 +11,7 @@ Nexus.Languages = Nexus.Languages or {
             ["No"] = "No",
             ["Yes"] = "Yes",
             ["Loading Language"] = "You are already loading a language!",
+            ["Config"] = "Config",
         },
     }
 }
@@ -121,15 +122,22 @@ function Nexus:IsLanguageLoaded(lang)
     return true
 end
 
-function Nexus:GetPhrase(str, addon)
+function Nexus:GetPhrase(str, addon, ply)
     addon = addon or "Nexus Library"
+
+    str = string.gsub(str, "％s", "%%s")
+
+    if SERVER then
+        local lang = ply.NexusLanguage or defaultLanguage
+        return string.gsub(Nexus.Languages[addon][lang][str], "％s", "%%s")
+    end
 
     local lang = Nexus:GetSetting("nexus_language", defaultLanguage)
     if not Nexus.Languages[addon][lang] or not Nexus.Languages[addon][lang][str] then
-        return Nexus.Languages[addon][defaultLanguage][str]
+        return string.gsub(Nexus.Languages[addon][defaultLanguage][str], "％s", "%%s")
     end
 
-    return Nexus.Languages[addon][lang][str]
+    return string.gsub(Nexus.Languages[addon][lang][str], "％s", "%%s")
 end
 
 function Nexus:GetRawPhrase(str, addon, lang)

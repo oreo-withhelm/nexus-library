@@ -8,6 +8,7 @@ concommand.Add("nexus_config", function()
     frame.OnRefresh = function()
         RunConsoleCommand("nexus_config")
     end
+    frame:SetTitle(Nexus:GetPhrase("Config"))
     frame:AddHeaderButton("https://imgur.com/ToBFMX2", function()
         local oldBuilder = Nexus.UIBuilder:Start()
         :CreateFrame({

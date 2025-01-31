@@ -248,7 +248,9 @@ net.Receive("Nexus:UpdateLanguage", function()
         return
     end
 
-    loadingFrame.loaded = loadingFrame.loaded + 1
+    if IsValid(loadingFrame) then
+        loadingFrame.loaded = loadingFrame.loaded + 1
+    end
 end)
 
 net.Receive("Nexus:NetworkLanguage", function()
@@ -271,6 +273,7 @@ net.Receive("Nexus:NetworkLanguage", function()
     end
 
     loadingLang = false
+    hook.Run("Nexus:LanguageChanged", lang)
 
     if IsValid(loadingFrame) then
         loadingFrame.callback(true)

@@ -71,6 +71,9 @@ net.Receive("Nexus:DownloadLanguage", function(len, ply)
         net.WriteUInt(#format, 32)
         net.WriteData(format, #format)
         net.Send(ply)
+
+        ply.NexusLanguage = languageCode
+        print(ply.NexusLanguage)
     end
 
     // i fetch this actual URL from github in case i change my vps IP
@@ -102,7 +105,7 @@ net.Receive("Nexus:DownloadLanguage", function(len, ply)
             reqwest({
                 method = "POST",
                 url = string.Replace(urlParam, "\n", ""),
-                timeout = 10,
+                timeout = 20,
             
                 body = util.TableToJSON({
                     text = requestFormat,
