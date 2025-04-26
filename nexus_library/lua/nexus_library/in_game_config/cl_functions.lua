@@ -93,6 +93,7 @@ net.Receive("Nexus:IGC:v2:NetworkFull", function()
 
     Nexus.DataCache = data
 
+    hook.Run("Nexus:ReceiveIGC")
     if Nexus:GetValue("nexus-config-admins")[LocalPlayer():GetUserGroup()] and not Nexus:GetSetting("Nexus-v2-notification") then
         Nexus:SetSetting("Nexus-v2-notification", true)
         Nexus:Notification("Nexus", "Nexus Library has released a v2 update all your nexus addons")

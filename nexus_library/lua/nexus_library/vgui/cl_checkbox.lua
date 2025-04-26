@@ -9,6 +9,7 @@ function PANEL:Init()
     self:SetText("Placeholder")
 
     self.margin = Nexus:Scale(10)
+    self.font = (Nexus:GetFont({size = 15}))
 
     self.Button = self:Add("Nexus:Button")
     self.Button:Dock(LEFT)

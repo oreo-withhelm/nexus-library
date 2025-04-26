@@ -77,7 +77,7 @@ function PANEL:OnSizeChanged(w, h)
 end
 
 function PANEL:Paint(w, h)
-    self.bgCol = self.bgCol or Nexus:OffsetColor(Nexus.Colors.Background, 20, true)
+    self.bgCol = self.bgCol or Nexus:OffsetColor(Nexus:GetColor("header"), 20, true)
 
     draw.RoundedBoxEx(Nexus:Scale(10), 0, 0, w, self.BaseH, self.bgCol, true, true, not self:IsExpanded() and true or false, not self:IsExpanded() and true or false)
     draw.SimpleText(self:GetText(), Nexus:GetFont(23, true), self.margin*2, self.BaseH/2, Nexus.Colors.Text, TEXT_ALIGN_LEFT, 1)

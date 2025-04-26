@@ -44,7 +44,7 @@ function PANEL:AddItem(text, func, icon, id)
 
     local button = self.Scroll:Add("DButton")
     button:Dock(LEFT)
-    button:DockMargin(0, 0, Nexus:GetMargin("large"), 0)
+    button:DockMargin(0, 0, Nexus:GetMargin("large"), Nexus:GetMargin("small"))
     button:SetTall(Nexus:GetScale(30))
     button:SetText("")
     button.Paint = function(s, w, h)
@@ -68,6 +68,10 @@ function PANEL:AddItem(text, func, icon, id)
     if self.active == id then
         self:SelectItem(id)
     end
+end
+
+function PANEL:GetActiveText()
+    return self.buttons[self.active].values.text
 end
 
 function PANEL:SelectItem(id)

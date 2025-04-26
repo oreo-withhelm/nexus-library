@@ -21,58 +21,115 @@ function Nexus:GetScale(number)
 end
 
 local openDermaMenu
-function Nexus:DermaMenu(tbl, onClicked)
-    if not tbl then return end
-    table.sort(tbl)
+
+function Nexus:DermaMenu(tbl, onClicked, noSort)
+    if not tbl or not istable(tbl) then return end
+
+    if !noSort then
+        table.sort(tbl, function(a, b) return tostring(a) < tostring(b) end)
+    end
 
     if IsValid(openDermaMenu) then
         openDermaMenu:Remove()
     end
 
-    local offset = Nexus:GetScale(4)
+    local scale = Nexus:GetScale(4)
+    local margin = Nexus:GetMargin("normal")
+    local animTime = 0.15
+
     local x, y = input.GetCursorPos()
+    
     openDermaMenu = vgui.Create("Panel")
-    openDermaMenu:SetPos(x + offset, y + offset)
-    openDermaMenu:SetSize(100, 100)
+    openDermaMenu:SetPos(x + scale, y - Nexus:GetScale(15))
     openDermaMenu:MakePopup()
-    openDermaMenu:DockPadding(0, offset, 0, 0)
+    openDermaMenu:DockPadding(margin, margin, margin, margin)
     openDermaMenu.Paint = function(s, w, h)
-        draw.RoundedBox(Nexus:GetMargin("normal"), 0, 0, w, h, Nexus:GetColor("background"))
-        draw.RoundedBox(Nexus:GetMargin("normal"), 0, offset, w, h-offset, Nexus:GetColor("secondary-2"))
+        draw.RoundedBoxEx(margin, 0, 0, w, h, Nexus:GetColor("background"), true, true, true, true)
     end
+
+    openDermaMenu:SetAlpha(0)
+    openDermaMenu:AlphaTo(255, animTime, 0)
 
     local scroll = openDermaMenu:Add("Nexus:V2:ScrollPanel")
     scroll:Dock(FILL)
-    scroll:DockMargin(0, offset, 0, 0)
     scroll.IsDermaMenu = true
-    scroll:GetCanvas().IsDermaMenu = true
-    scroll:GetVBar().IsDermaMenu = true
-    scroll:GetVBar().btnGrip.IsDermaMenu = true
+    
+    local vbar = scroll:GetVBar()
+    vbar:SetWide(Nexus:GetScale(4))
 
-    local tall = offset
+    local totalHeight = margin
+    local widest = 0
+    local buttons = {}
     for k, v in ipairs(tbl) do
         local button = scroll:Add("DButton")
         button:Dock(TOP)
-        button:DockMargin(Nexus:GetMargin("small"), 0, Nexus:GetMargin("small"), Nexus:GetMargin("small"))
-        button:SetText(v)
-        button:SetFont(Nexus:GetFont({size = 14}))
+        button:DockMargin(0, 0, margin * 0.5, margin * 0.5)
+        button:SetText(tostring(v))
+        button:SetFont(Nexus:GetFont({size = 15}))
         button:SetTextColor(Nexus:GetTextColor(Nexus:GetColor("secondary")))
         button:SizeToContents()
-        button:SetTall(button:GetTall() + Nexus:GetMargin("small"))
+
+        surface.SetFont(Nexus:GetFont({size = 15}))
+        local btnW, btnH = surface.GetTextSize(tostring(v))
+        button:SetTall(btnH + margin)
+        widest = math.max(widest, btnW + margin * 2)
+        
         button.IsDermaMenu = true
+        button:SetAlpha(0)
+        button:AlphaTo(255, animTime, k * 0.02)
+
         button.Paint = function(s, w, h)
-            draw.RoundedBox(Nexus:GetMargin("small"), 0, 0, w, h, s:IsHovered() and Nexus:GetColor("background") or Nexus:GetColor("header"))
+            local col = s:IsHovered() and Nexus:GetColor("secondary-2") or Nexus:GetColor("background")
+            draw.RoundedBox(margin * 0.5, 0, 0, w, h, col)
         end
-        button.DoClick = function()
-            openDermaMenu:Remove()
-            onClicked(v)
+        
+        button.DoClick = function(s)
+            surface.PlaySound("ui/buttonclick.wav")
+            openDermaMenu:AlphaTo(0, animTime, 0, function()
+                if IsValid(openDermaMenu) then
+                    openDermaMenu:Remove()
+                end
+            end)
+            if onClicked then
+                onClicked(v, k)
+            end
         end
 
-        tall = k > 5 and tall or tall + button:GetTall() + Nexus:GetMargin("small")
+        buttons[k] = button
+
+        if k <= 5 then
+            totalHeight = totalHeight + button:GetTall() + margin * 0.5
+        end
     end
 
-    tall = tall + offset
-    openDermaMenu:SetTall(tall)
+    widest = math.min(widest + margin*2 + Nexus:GetScale(4), Nexus:GetScale(200))
+    totalHeight = math.min(totalHeight + margin, ScrH() - y - scale * 2)
+    
+    openDermaMenu:SetSize(widest, totalHeight)
+
+    local posX, posY = openDermaMenu:GetPos()
+    if posX + widest > ScrW() then
+        openDermaMenu:SetPos(ScrW() - widest - scale, posY)
+    end
+    if posY + totalHeight > ScrH() then
+        openDermaMenu:SetPos(posX, ScrH() - totalHeight - scale)
+    end
+
+    openDermaMenu.Think = function(s)
+        if not vgui.CursorVisible() or input.IsMouseDown(MOUSE_LEFT) then
+            local mx, my = input.GetCursorPos()
+            local x, y, w, h = s:GetBounds()
+            if mx < x or mx > x + w or my < y or my > y + h then
+                s:AlphaTo(0, animTime, 0, function()
+                    if IsValid(s) then
+                        s:Remove()
+                    end
+                end)
+            end
+        end
+    end
+
+    return openDermaMenu
 end
 
 function Nexus:QueryPopup(str, onYes, onNo, yesText, noText)
@@ -202,17 +259,14 @@ concommand.Add("nexus_examples", function()
     GenerateFrame()
 end)
 
-local loadingLang = false
 local loadingFrame = false
 function Nexus:LoadLanguage(lang, callback)
     callback = callback or function() end
 
-    if loadingLang then
+    if IsValid(loadingFrame) then
         notification.AddLegacy(Nexus:GetPhrase("Loading Language"), NOTIFY_ERROR, 3)
         return
     end
-
-    loadingLang = true
 
     net.Start("Nexus:DownloadLanguage")
     net.WriteString(lang)
@@ -230,7 +284,7 @@ function Nexus:LoadLanguage(lang, callback)
         draw.RoundedBox(Nexus:GetMargin("normal"), 0, 0, w, h, Nexus:GetColor("background"))
         draw.SimpleText(string.format(Nexus:GetInstalledText(lang, "Loading Language Package"), s.loaded, table.Count(Nexus.Languages)), Nexus:GetFont({size = 20}), w/2, h/2, Nexus:GetColor("primary-text"), 1, 1)
     end
-    timer.Simple(20, function()
+    timer.Simple(60, function()
         if IsValid(loadingFrame) then
             loadingFrame:Remove()
         end
@@ -244,8 +298,6 @@ net.Receive("Nexus:UpdateLanguage", function()
     if IsValid(loadingFrame) and not isUpdate then
         loadingFrame.callback(false)
         loadingFrame:Remove()
-        loadingLang = false
-        return
     end
 
     if IsValid(loadingFrame) then
@@ -272,11 +324,10 @@ net.Receive("Nexus:NetworkLanguage", function()
         Nexus:AddLanguages(addon, lang, tbl)
     end
 
-    loadingLang = false
     hook.Run("Nexus:LanguageChanged", lang)
 
     if IsValid(loadingFrame) then
-        loadingFrame.callback(true)
+        loadingFrame.callback(lang)
         loadingFrame:Remove()
     end
 end)

@@ -3,7 +3,8 @@ local PANEL = {}
 
 function PANEL:Init()
     self.CanvasPanel = vgui.Create( "Panel", self )
-    self.CanvasPanel:DockPadding(0, 0, 0, Nexus:Scale(10))
+    self.CanvasPanel:DockPadding(0, 0, 0, 0)
+
     self.CanvasPanel.OnMousePressed = function( canvasPanel, code )
         canvasPanel:GetParent():OnMousePressed( code )
     end
@@ -24,6 +25,10 @@ function PANEL:Init()
     self:SetPaintBackground( false )
 end
 
+function PANEL:DisableMouseScroller()
+    self.disableScroll = true
+end
+
 function PANEL:AddItem( item )
     item:SetParent( self.CanvasPanel )
 end
@@ -34,6 +39,10 @@ end
 
 function PANEL:SetScrollSpeed( scrollSpeed )
     self.Scrollbar.ScrollSpeed = math.Clamp( scrollSpeed, 0.1, 100 )
+end
+
+function PANEL:GetVBar()
+    return self.Scrollbar
 end
 
 function PANEL:GetScrollSpeed()
@@ -83,11 +92,18 @@ function PANEL:OnScroll( offset )
 end
 
 function PANEL:OnMouseWheeled( delta )
+    if self.disableScroll then return end
     return self.Scrollbar:OnMouseWheeled( delta )
 end
 
-function PANEL:PerformLayout()
+function PANEL:PerformLayout(w, h)
     self:PerformLayoutInternal()
+
+    self.Scrollbar:SetTall(0)
+
+    if self.CanvasPanel:GetWide() > w then
+        self.Scrollbar:SetTall(Nexus:GetMargin("small"))
+    end
 end
 
 vgui.Register("Nexus:V2:HorizontalScrollPanel", PANEL, "DPanel")

@@ -141,6 +141,7 @@ function Nexus:GetPhrase(str, addon, ply)
 end
 
 function Nexus:GetRawPhrase(str, addon, lang)
+    lang = lang or defaultLanguage
     return Nexus.Languages[addon][lang][str]
 end
 

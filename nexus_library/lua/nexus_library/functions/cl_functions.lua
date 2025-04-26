@@ -90,24 +90,74 @@ end)
 function Nexus:StringQuery(title, text, callback)
     callback = callback or function() end
 
-    local frame = vgui.Create("Nexus:Frame")
-    frame:SetSize(Nexus:Scale(350), Nexus:Scale(120))
+    local frame = vgui.Create("Nexus:V2:Frame")
+    frame:SetSize(Nexus:Scale(400), Nexus:Scale(140))
     frame:Center()
     frame:SetTitle(title)
     frame:MakePopup()
 
-    local margin = Nexus:Scale(10)
-    local entry = frame:Add("Nexus:TextEntry")
+    local margin = Nexus:GetMargin()
+    local entry = frame:Add("Nexus:V2:TextEntry")
     entry:Dock(FILL)
     entry:DockMargin(margin, margin, margin, margin)
     entry:SetPlaceholder(text)
 
-    local button = frame:Add("Nexus:Button")
+    local button = frame:Add("Nexus:V2:Button")
     button:Dock(RIGHT)
     button:DockMargin(0, margin, margin, margin)
     button:SetText("Ok")
     button.DoClick = function()
         callback(entry:GetValue())
+        frame:Remove()
+    end
+end
+
+function Nexus:QueryPopup(title, text, callback)
+    callback = callback or function() end
+
+    local frame = vgui.Create("Nexus:V2:Frame")
+    frame:SetSize(Nexus:Scale(400), Nexus:Scale(180))
+    frame:Center()
+    frame:SetTitle(title)
+    frame:MakePopup()
+
+    local margin = Nexus:GetMargin()
+    local label = frame:Add("DLabel")
+    label:Dock(TOP)
+    label:DockMargin(margin, margin, margin, 0)
+    label:SetText(text)
+    label:SetFont(Nexus:GetFont({size = 15}))
+    label:SetContentAlignment(5)
+    label:SizeToContents()
+
+    surface.SetFont(Nexus:GetFont({size = 15}))
+    local tw, th = surface.GetTextSize(text)
+    tw = tw + margin*4
+    frame:SetWide(math.max(frame:GetWide(), tw))
+    frame:SetX((ScrW()/2) - (frame:GetWide()/2))
+    local panel = frame:Add("DPanel")
+    panel:Dock(FILL)
+    panel:DockMargin(margin, margin, margin, margin)
+    panel.Paint = nil
+    panel.PerformLayout = function(s, w, h)
+        local wide = (w - margin)/2
+        for k, v in ipairs(s:GetChildren()) do
+            v:SetSize(wide, h)
+            v:SetX((k-1) * (wide + margin))
+        end
+    end
+
+    local button = panel:Add("Nexus:V2:Button")
+    button:SetText("Yes")
+    button.DoClick = function()
+        callback()
+        frame:Remove()
+    end
+
+    local button = panel:Add("Nexus:V2:Button")
+    button:SetText("No")
+    button:SetSecondary()
+    button.DoClick = function()
         frame:Remove()
     end
 end

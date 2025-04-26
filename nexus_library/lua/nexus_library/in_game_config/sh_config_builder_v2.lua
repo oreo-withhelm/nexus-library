@@ -32,7 +32,7 @@ end
 function BUILDER:AddButtons(tbl)
     tbl = tbl or {}
 
-    if tbl.label then
+    if tbl.label and !tbl.isToggle then
         self:AddLabel({text = tbl.label})
     end
 

@@ -1,7 +1,3 @@
-pcall(function()
-    require("reqwest")
-end)
-
 util.AddNetworkString("Nexus:DownloadLanguage")
 util.AddNetworkString("Nexus:UpdateLanguage")
 util.AddNetworkString("Nexus:NetworkLanguage")
@@ -73,7 +69,6 @@ net.Receive("Nexus:DownloadLanguage", function(len, ply)
         net.Send(ply)
 
         ply.NexusLanguage = languageCode
-        print(ply.NexusLanguage)
     end
 
     // i fetch this actual URL from github in case i change my vps IP
@@ -105,7 +100,7 @@ net.Receive("Nexus:DownloadLanguage", function(len, ply)
             reqwest({
                 method = "POST",
                 url = string.Replace(urlParam, "\n", ""),
-                timeout = 20,
+                timeout = 60,
             
                 body = util.TableToJSON({
                     text = requestFormat,
@@ -149,4 +144,8 @@ net.Receive("Nexus:DownloadLanguage", function(len, ply)
     end, function()
         onFailed()
     end)
+end)
+
+pcall(function()
+    require("reqwest")
 end)

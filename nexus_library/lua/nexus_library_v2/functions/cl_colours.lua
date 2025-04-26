@@ -14,6 +14,7 @@ local colors = {
 
     ["overlay"] = Color(200, 200, 200, 20),
     ["green"] = Color(40, 204, 95),
+    ["red"] = Color(192, 27, 27),
 }
 
 function Nexus:GetColor(str)

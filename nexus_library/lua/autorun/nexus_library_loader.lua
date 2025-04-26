@@ -82,8 +82,8 @@ function Nexus:LoadDirectory(dir, loadFirst)
 end
 
 Nexus:LoadDirectory("nexus_library")
-Nexus:LoadDirectory("nexus_library/modules")
 
 Nexus:LoadDirectory("nexus_library_v2")
+Nexus:LoadDirectory("nexus_library/modules")
 
 hook.Run("Nexus:Loaded")

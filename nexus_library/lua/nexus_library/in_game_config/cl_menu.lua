@@ -42,9 +42,12 @@ function PANEL:SelectContent(data)
 
     for _, v in ipairs(data.Elements or {}) do
         if v.id == "label" then
-            self:AddLabel(v.text, v.margin, v.size)
+            self:AddLabel(istable(v.text) and Nexus:GetPhrase(v.text[1], v.text[2]) or v.text, v.margin, v.size)
         elseif v.id == "button-row" then
             local row = self:AddRow()
+            if v.data.isToggle then
+                row:SetTall(Nexus:GetScale(35))
+            end
             local buttons = {}
 
             local dat = {}
@@ -63,11 +66,24 @@ function PANEL:SelectContent(data)
                     net.SendToServer()
                 end)
 
+                if v.data.isToggle then
+                    surface.SetFont(button:GetFont())
+                    local tw, th = surface.GetTextSize(buttonDATA.text or "N/A")
+                    button:SetWide(tw + Nexus:GetMargin()*2)
+                end
+
                 table.Add(buttons, {{id = v.data.id, button = button, buttonDATA = buttonDATA}})
 
                 if v.data.showSelected and Nexus:GetValue(v.data.id) == buttonDATA.value then
                     button:SetColor(Nexus:GetColor("green"))
                 end
+            end
+
+            if v.data.isToggle then
+                local label = row:Add("DLabel")
+                label:Dock(FILL)
+                label:SetText(Nexus:GetPhrase(v.data.label[1], v.data.label[2]))
+                label:SetFont(Nexus:GetFont({size = 18}))
             end
 
             self.Panels[v.data.id] = function(value)

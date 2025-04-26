@@ -13,7 +13,10 @@ function PANEL:Init()
             local tall = h - Nexus:GetMargin("normal")*2
             local size = Nexus:GetScale(120)
             Nexus:DrawImgur("https://imgur.com/ONG3mbJ", -size/2, -size/2, size, size, Nexus:GetColor("accent"))
-            Nexus:DrawImgur("https://imgur.com/ONG3mbJ", w + -size/2 - Nexus:GetMargin("normal") - tall/2, h/2 + -size/2, size, size, accentalpha)
+            if IsValid(self.CloseButton) and self.CloseButton:IsVisible() then
+                Nexus:DrawImgur("https://imgur.com/ONG3mbJ", w + -size/2 - Nexus:GetMargin("normal") - tall/2, h/2 + -size/2, size, size, accentalpha)                
+            end
+
             Nexus.Masks.Source()
             draw.RoundedBoxEx(Nexus:GetMargin("large"), 0, 0, w, h, color_white, true, true)
         Nexus.Masks.End()
@@ -75,6 +78,7 @@ function PANEL:Init()
 
     self.Header.QuickButtons.PerformLayout = function(s, w, h)
         for _, button in ipairs(s.Buttons) do
+            if not IsValid(button) then continue end
             button:SetWide(h - Nexus:GetMargin("normal")*2)
         end
     end

@@ -130,5 +130,9 @@ function PANEL:Paint(w, h)
 	draw.RoundedBox(self.margin, 0, 0, w, h, Nexus:GetColor("secondary-2"))
 	draw.SimpleText(self:GetText(), self:GetFont(), self.margin+4, h/2, Nexus:GetColor("secondary-text"), 0, 1)
 	draw.SimpleText("•", self:GetFont(), w - self.margin - 4, h/2, Nexus:GetColor("secondary-text"), TEXT_ALIGN_RIGHT, 1)
+
+    if self:IsHovered() then
+        draw.RoundedBox(self.margin, 0, 0, w, h, Nexus:GetColor("overlay"))
+    end
 end
 vgui.Register("Nexus:V2:ComboBox", PANEL, "Nexus:Button")
