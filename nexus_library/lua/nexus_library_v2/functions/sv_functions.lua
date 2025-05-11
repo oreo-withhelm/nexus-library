@@ -2,6 +2,10 @@ util.AddNetworkString("Nexus:DownloadLanguage")
 util.AddNetworkString("Nexus:UpdateLanguage")
 util.AddNetworkString("Nexus:NetworkLanguage")
 
+if util.IsBinaryModuleInstalled("reqwest") then
+    require("reqwest")
+end
+
 local url = "https://raw.githubusercontent.com/oreo-withhelm/static-data/refs/heads/main/vps-ip.txt"
 local function FetchDataFromGitHub(onSuccess, onError)
     HTTP({
@@ -144,8 +148,4 @@ net.Receive("Nexus:DownloadLanguage", function(len, ply)
     end, function()
         onFailed()
     end)
-end)
-
-pcall(function()
-    require("reqwest")
 end)

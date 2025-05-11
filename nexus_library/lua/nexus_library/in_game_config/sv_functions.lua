@@ -54,7 +54,7 @@ net.Receive("Nexus:IGC:V2:UpdateValue", function(len, ply)
         local value = isfunction(info.buttons) and info.buttons()[int].value or info.buttons[int].value
         Nexus:SetValue(configID, value)
 
-        info.onChange(value)
+        info.onChange(value, ply)
 
         if not info.dontNetwork then
             net.Start("Nexus:IGC:V2:NetworkValue")

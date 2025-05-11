@@ -133,6 +133,11 @@ function Nexus:DermaMenu(tbl, onClicked, noSort)
 end
 
 function Nexus:QueryPopup(str, onYes, onNo, yesText, noText)
+    if isstring(str) and isstring(onYes) and isfunction(onNo) then
+        Nexus:LegacyPopup(str, onYes, onNo)
+        return
+    end
+
     onNo = function() end
     yesText = yesText or Nexus:GetPhrase("Yes")
     noText = noText or Nexus:GetPhrase("No")
@@ -336,5 +341,13 @@ hook.Add("InitPostEntity", "Nexus:LoadLanguage", function()
     local value = Nexus:GetSetting("nexus_language", Nexus:GetDefaultLanguage())
     if not Nexus:IsLanguageLoaded(value) then
         Nexus:LoadLanguage(value, function() end)
+    end
+
+    local isSuperadmin = false
+    isSuperadmin = CAMI and CAMI.InheritanceRoot(LocalPlayer():GetUserGroup()) == "superadmin" or isSuperadmin
+    isSuperadmin = not isSuperadmin and LocalPlayer() == "superadmin" or isSuperadmin
+    if isSuperadmin and !Nexus:GetSetting("nexus-cu", false) then
+        Nexus:Notification("Notification", "nexus_config [Nexus Core] has new config options (02/05/2025)")
+        Nexus:SetSetting("nexus-cu", true)
     end
 end)

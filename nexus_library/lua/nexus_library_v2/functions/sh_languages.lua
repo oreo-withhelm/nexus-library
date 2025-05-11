@@ -127,17 +127,18 @@ function Nexus:GetPhrase(str, addon, ply)
 
     str = string.gsub(str, "％s", "%%s")
 
-    if SERVER then
-        local lang = ply.NexusLanguage or defaultLanguage
-        return string.gsub(Nexus.Languages[addon][lang][str], "％s", "%%s")
+    local lang = defaultLanguage
+    if SERVER and (ply and IsValid(ply)) then
+        lang = ply.NexusLanguage or lang
+    elseif CLIENT then
+        local localLang = Nexus:GetSetting("nexus_language", defaultLanguage)
+        if Nexus.Languages[addon][lang] and Nexus.Languages[addon][lang][str] then
+            lang = localLang
+        end
     end
 
-    local lang = Nexus:GetSetting("nexus_language", defaultLanguage)
-    if not Nexus.Languages[addon][lang] or not Nexus.Languages[addon][lang][str] then
-        return string.gsub(Nexus.Languages[addon][defaultLanguage][str], "％s", "%%s")
-    end
-
-    return string.gsub(Nexus.Languages[addon][lang][str], "％s", "%%s")
+    local data = string.gsub(Nexus.Languages[addon][lang][str], "％s", "%%s")
+    return data
 end
 
 function Nexus:GetRawPhrase(str, addon, lang)

@@ -112,7 +112,7 @@ function Nexus:StringQuery(title, text, callback)
     end
 end
 
-function Nexus:QueryPopup(title, text, callback)
+function Nexus:LegacyPopup(title, text, callback)
     callback = callback or function() end
 
     local frame = vgui.Create("Nexus:V2:Frame")
@@ -162,11 +162,21 @@ function Nexus:QueryPopup(title, text, callback)
     end
 end
 
+net.Receive("Nexus:PopupAsk", function()
+    local id = net.ReadUInt(32)
+    local str = net.ReadString()
+    Nexus:QueryPopup("Popup", str, function()
+        net.Start("Nexus:PressedPopup")
+        net.WriteUInt(id, 32)
+        net.SendToServer()
+    end)
+end)
+
 function Nexus:Notification(title, text, callback)
     callback = callback or function() end
 
-    local frame = vgui.Create("Nexus:Frame")
-    frame:SetSize(Nexus:Scale(350), Nexus:Scale(100))
+    local frame = vgui.Create("Nexus:V2:Frame")
+    frame:SetSize(Nexus:Scale(350), Nexus:Scale(120))
     frame:Center()
     frame:SetTitle(title)
     frame:MakePopup()

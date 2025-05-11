@@ -58,7 +58,7 @@ function PANEL:SelectContent(data)
             end
 
             for int, buttonDATA in ipairs(dat or {}) do
-                local button = self:AddButton(row, buttonDATA.text or "N/A", v.data.showSelected and Nexus:GetColor("secondary") or buttonDATA.color, function()
+                local button = self:AddButton(row, isfunction(buttonDATA.text) and buttonDATA.text() or buttonDATA.text or "N/A", v.data.showSelected and Nexus:GetColor("secondary") or buttonDATA.color, function()
                     net.Start("Nexus:IGC:V2:UpdateValue")
                         net.WriteString(v.id)
                         net.WriteString(v.data.id)
@@ -68,7 +68,7 @@ function PANEL:SelectContent(data)
 
                 if v.data.isToggle then
                     surface.SetFont(button:GetFont())
-                    local tw, th = surface.GetTextSize(buttonDATA.text or "N/A")
+                    local tw, th = surface.GetTextSize(isfunction(buttonDATA.text) and buttonDATA.text() or buttonDATA.text or "N/A")
                     button:SetWide(tw + Nexus:GetMargin()*2)
                 end
 

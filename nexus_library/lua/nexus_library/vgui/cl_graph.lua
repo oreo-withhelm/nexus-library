@@ -61,7 +61,6 @@ function PANEL:AddValue(value, footerText, displayedText)
         self.Max = math.ceil(self.Max, 2)
 
         self.Range = math.ceil(self.Max - self.Min)
-        print(self.Range)
     end
 
     self.Reformat = true

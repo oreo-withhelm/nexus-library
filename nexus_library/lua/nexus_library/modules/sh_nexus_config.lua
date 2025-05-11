@@ -15,4 +15,26 @@ Nexus.Builder:Start()
 
         onChange = function(value) end,
     })
+
+    :AddTextEntry({
+        id = "nexus-logo",
+        label = "Logo",
+        defaultValue = "https://imgur.com/7BkhMeY",
+
+        placeholder = "https://imgur.com/7BkhMeY",
+        isNumeric = false,
+
+        onChange = function(value) end,
+    })
+
+    :AddTextEntry({
+        id = "nexus-title",
+        label = "Title",
+        defaultValue = "Nexus Addons",
+
+        placeholder = "Nexus Addons",
+        isNumeric = false,
+
+        onChange = function(value) end,
+    })
 :End()

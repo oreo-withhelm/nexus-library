@@ -31,3 +31,29 @@ function Nexus:Notify(ply, int, seconds, str, addonPhrase)
     net.WriteUInt(seconds, 5)
     net.Send(ply)
 end
+
+local id = 0
+util.AddNetworkString("Nexus:PopupAsk")
+function Nexus:PopupAsk(ply, str, callback)
+    ply.Popup = {id, callback}
+
+    net.Start("Nexus:PopupAsk")
+    net.WriteUInt(id, 32)
+    net.WriteString(str)
+    net.Send(ply)
+
+    id = id + 1
+end
+
+util.AddNetworkString("Nexus:PressedPopup")
+net.Receive("Nexus:PressedPopup", function(len, ply)
+    local id = net.ReadUInt(32)
+    if !ply.Popup or ply.Popup[1] ~= id then
+        Nexus:Notify(ply, 1, 3, "ERROR")
+        return
+    end
+
+    ply.Popup[2]()
+    ply.Popup = nil
+    Nexus:Notify(ply, 1, 3, "Success")
+end)

@@ -33,7 +33,7 @@ function PANEL:Init()
     self.Header.TitleBox:Dock(LEFT)
     self.Header.TitleBox:DockMargin(Nexus:GetMargin("normal"), Nexus:GetMargin("normal"), Nexus:GetMargin("normal"), Nexus:GetMargin("normal"))
 
-    self.logo = "https://imgur.com/7BkhMeY"
+    self.logo = Nexus:GetValue("nexus-logo")
     self.Header.TitleBox.Logo = self.Header.TitleBox:Add("Panel")
     self.Header.TitleBox.Logo:Dock(LEFT)
     self.Header.TitleBox.Logo:SetWide(Nexus:GetScale(30))
@@ -54,7 +54,7 @@ function PANEL:Init()
     end
 
     self.Header.TitleBox.TitleArea.ServerName = self.Header.TitleBox.TitleArea:Add("DLabel")
-    self.Header.TitleBox.TitleArea.ServerName:SetText(Nexus:GetPhrase("Server Name"))
+    self.Header.TitleBox.TitleArea.ServerName:SetText(Nexus:GetValue("nexus-title"))
     self.Header.TitleBox.TitleArea.ServerName:SetFont(Nexus:GetFont({size = 15, bold = true}))
     self.Header.TitleBox.TitleArea.ServerName:SizeToContents()
     self.Header.TitleBox.TitleArea.ServerName:SetTextColor(Nexus:GetColor("primary-text"))
@@ -110,7 +110,7 @@ function PANEL:Init()
         table.insert(self.Header.QuickButtons.Buttons, button)
     end
 
-    self:AddHeaderButton(Nexus:GetCurFlag(), function()
+    self:AddHeaderButton("https://imgur.com/e6jSBqi", function()
         Nexus:DermaMenu(self.languages, function(value)
             if not Nexus:IsLanguageLoaded(value) then
                 Nexus:QueryPopup(string.format(Nexus:GetInstalledText(value, "download"), value), function()
