@@ -9,7 +9,7 @@ local colors = {
     ["accent"] = Color(172, 16, 55, 255),
     ["orange"] = Color(235, 129, 22, 255),
 
-    ["primary-text"] = Color(194, 194, 194),
+    ["primary-text"] = Color(233, 233, 233),
     ["secondary-text"] = Color(129, 129, 129),
 
     ["overlay"] = Color(200, 200, 200, 20),

@@ -9,7 +9,7 @@ function Nexus:GetFont(size, dontScale, isBold)
         local name = "Nexus:"..tostring(size)..":"..(dontScale and "Non" or "Scaled")..(isBold and "Bold" or "NonBold")
         if fontCache[name] then return name end
         surface.CreateFont(name, {
-            font = "Lato",
+            font = isBold and "Lato" or "Lato Regular",
             size = dontScale and size or Nexus:Scale(size),
             weight = isBold and 700 or 500,
             extended = true,
@@ -23,14 +23,15 @@ function Nexus:GetFont(size, dontScale, isBold)
         local size = math.floor(data.size)
         local dontScale = data.dontScale
         local isBold = data.bold
-        local name = "NexusV2:"..tostring(size)..":"..(dontScale and "Non" or "Scaled")..(isBold and "Bold" or "NonBold")
+        local activeFont = data.font or (isBold and "Lato" or "Lato Regular")
+        local name = "NexusV2:"..tostring(size)..":"..(dontScale and "Non" or "Scaled")..(isBold and "Bold" or "NonBold")..(activeFont)
 
         if fontCacheV2[name] then return name end
 
         surface.CreateFont(name, {
-            font = "Lato",
+            font = activeFont,
             size = dontScale and size or Nexus:GetScale(size),
-            weight = isBold and 700 or 500,
+            weight = isBold and 700 or 100,
             extended = true,
             antialias = true,
         })
@@ -41,25 +42,6 @@ function Nexus:GetFont(size, dontScale, isBold)
 end
 
 hook.Add("OnScreenSizeChanged", "Nexus:ScaleFonts", function()
-    for name, v in pairs(fontCache) do
-        if v[2] then continue end
-        surface.CreateFont(name, {
-            font = "Lato",
-            size = Nexus:Scale(v[1]),
-            weight = v[3] and 700 or 500,
-            extended = true,
-            antialias = true,
-        })    
-    end
-
-    for fontCacheV2, v in pairs(fontCache) do
-        if v[2] then continue end
-        surface.CreateFont(name, {
-            font = "Lato",
-            size = Nexus:GetScale(v[1]),
-            weight = v[3] and 700 or 500,
-            extended = true,
-            antialias = true,
-        })    
-    end
+    fontCache = {}
+    fontCacheV2 = {}
 end)

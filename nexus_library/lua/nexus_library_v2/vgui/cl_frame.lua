@@ -1,6 +1,7 @@
 local PANEL = {}
 function PANEL:Init()
     self.languages = Nexus:GetLanguages()
+    self.Roundness = Nexus:GetMargin("large")
 
     local accentalpha = Color(Nexus:GetColor("accent").r, Nexus:GetColor("accent").b, Nexus:GetColor("accent").b, 210)
     self.Header = self:Add("Panel")
@@ -93,14 +94,16 @@ function PANEL:Init()
             draw.RoundedBox(Nexus:GetMargin("normal"), 0, 0, w, h, Nexus:GetColor("background"))
 
             local thickness = Nexus:GetScale(2)
-            Nexus.Masks.Start()
-                Nexus:DrawImgur(icon, thickness, thickness, w-thickness*2, h-thickness*2)
+            --[[Nexus.Masks.Start()
+                
             Nexus.Masks.Source()
-                draw.RoundedBox(Nexus:GetMargin("normal"), thickness, thickness, w-thickness*2, h-thickness*2, color_white)
-            Nexus.Masks.End()
+                draw.RoundedBox(Nexus:GetMargin("normal"), thickness, thickness, w-(thickness*2), h-(thickness*2), color_white)
+            Nexus.Masks.End()--]]
+            local size = h*.8
+            Nexus:DrawImgur(icon, (w/2) - (size/2), (h/2)-(size/2), size, size)
 
             if s:IsHovered() then
-                draw.RoundedBox(Nexus:GetMargin("normal"), thickness, thickness, w-thickness*2, h-thickness*2, Nexus:GetColor("overlay"))
+                draw.RoundedBox(Nexus:GetMargin("normal"), thickness, thickness, w-(thickness*2), h-(thickness*2), Nexus:GetColor("overlay"))
             end
         end
         button.DoClick = function()
@@ -108,6 +111,8 @@ function PANEL:Init()
         end
 
         table.insert(self.Header.QuickButtons.Buttons, button)
+
+        return button
     end
 
     self:AddHeaderButton("https://imgur.com/e6jSBqi", function()
@@ -197,7 +202,7 @@ function PANEL:HideHeaderButton()
 end
 
 function PANEL:AddHeaderButton(icon, doClick)
-    self.Header.QuickButtons:AddButton(icon, doClick)
+    return self.Header.QuickButtons:AddButton(icon, doClick)
 end
 
 function PANEL:SetTitle(title)
@@ -227,7 +232,7 @@ local color_zero = Color(0, 0, 0, 0)
 function PANEL:Paint(w, h)
     self.overlay = self.overlay or table.Copy(Nexus:GetColor("secondary"))
     self.overlay.a = 100
-    draw.RoundedBox(Nexus:GetMargin("large"), 0, 0, w, h, Nexus:GetColor("background"))
-    Nexus:DrawRoundedGradient(0, 0, w, h, color_zero, self.overlay, Nexus:GetMargin("large"))
+    draw.RoundedBox(self.Roundness, 0, Nexus:GetMargin(), w, h - Nexus:GetMargin(), Nexus:GetColor("background"))
+    Nexus:DrawRoundedGradient(0, Nexus:GetMargin(), w, h - Nexus:GetMargin(), color_zero, self.overlay, self.Roundness)
 end
 vgui.Register("Nexus:V2:Frame", PANEL, "EditablePanel")

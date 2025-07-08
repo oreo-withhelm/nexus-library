@@ -84,19 +84,19 @@ end
 local PANEL = {}
 function PANEL:Init()
     self.margin = Nexus:GetMargin("normal")
-
-	self:SetFont(Nexus:GetFont({size = 15}))
-	self:SetTextColor(Color(120, 120, 120))
+    self:SetTall(Nexus:GetScale(35))
 	self.Options = {}
     self.DontSort = false
 end
 
 function PANEL:DoClick()
-	Nexus.PopoutMenu(self, self.Options, function(val)
-		self.Selected = val
-		self:SetText(val)
-		self:OnSelect(false, val)
-	end, self.DontSort)
+    Nexus:DermaMenu(self.Options, function(v, int)
+        local text, func = v.text, v.func
+        self.Selected = text
+		self:SetText(text)
+		self:OnSelect(int, text)
+        func()
+    end, self.DontSort, self)
 end
 
 function PANEL:SetValue(str)
@@ -128,8 +128,8 @@ end
 
 function PANEL:Paint(w, h)
 	draw.RoundedBox(self.margin, 0, 0, w, h, Nexus:GetColor("secondary-2"))
-	draw.SimpleText(self:GetText(), self:GetFont(), self.margin+4, h/2, Nexus:GetColor("secondary-text"), 0, 1)
-	draw.SimpleText("•", self:GetFont(), w - self.margin - 4, h/2, Nexus:GetColor("secondary-text"), TEXT_ALIGN_RIGHT, 1)
+	draw.SimpleText(self:GetText(), self:GetFont(), self.margin+4, h/2, Nexus:GetColor("primary-text"), 0, 1)
+	draw.SimpleText("•", self:GetFont(), w - self.margin - 4, h/2, Nexus:GetColor("primary-text"), TEXT_ALIGN_RIGHT, 1)
 
     if self:IsHovered() then
         draw.RoundedBox(self.margin, 0, 0, w, h, Nexus:GetColor("overlay"))

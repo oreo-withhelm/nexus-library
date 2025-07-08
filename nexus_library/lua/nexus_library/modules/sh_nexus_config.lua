@@ -1,3 +1,8 @@
+Nexus:AddLanguages("nexus_lib", "en", {
+    ["Selected All"] = "Selected All",
+    ["Reset"] = "Reset",
+})
+
 Nexus.Builder:Start()
     :SetName("Nexus Core")
 

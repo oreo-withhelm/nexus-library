@@ -46,9 +46,9 @@ function PANEL:Paint(w, h)
     draw.SimpleText(self.Text, self:GetFont(), w/2, h - (h/2), textCol, 1, 1)
 
     if self.icon then
-        local size = h * 0.5
-        local x, y = (w/2) - (size/2)
-        Nexus:DrawImgur(self.icon, x, x, size, size, color_white)
+        local size = h * 0.65
+        local x, y = (w/2) - (size/2), (h/2) - (size/2)
+        Nexus:DrawImgur(self.icon, x, y, size, size, color_white)
     end
 
     if self:IsHovered() then

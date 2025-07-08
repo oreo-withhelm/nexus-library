@@ -1,5 +1,5 @@
 -- to make sure your file loads properly create a file in the directory listen below and make it sh_
--- lua/nexus_library/modules/sh_filename.lua
+-- lua/nexus_library/modules directory/sh_filename.lua
 
 -- retrieves the data of an associated ID
 -- returns (could be any data type)

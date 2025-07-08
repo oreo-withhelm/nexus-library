@@ -89,6 +89,6 @@ function PANEL:CenterPlaceholder()
 end
 
 function PANEL:Paint(w, h)
-	draw.RoundedBox(Nexus:GetMargin("normal"), 0, 0, w, h, Nexus:GetColor("secondary-2"))
+	draw.RoundedBox(Nexus:GetMargin("normal"), 0, 0, w, h, self.CustomCol or Nexus:GetColor("secondary-2"))
 end
 vgui.Register("Nexus:V2:TextEntry", PANEL, "EditablePanel")

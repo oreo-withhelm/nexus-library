@@ -87,11 +87,11 @@ net.Receive("Nexus:Notification", function()
     notification.AddLegacy(isPhrase and Nexus:GetPhrase(str, addon) or str, err, time)
 end)
 
-function Nexus:StringQuery(title, text, callback)
+function Nexus:StringQuery(title, text, callback, buttonText, isNumeric)
     callback = callback or function() end
 
     local frame = vgui.Create("Nexus:V2:Frame")
-    frame:SetSize(Nexus:Scale(400), Nexus:Scale(140))
+    frame:SetSize(Nexus:Scale(400), Nexus:GetScale(110))
     frame:Center()
     frame:SetTitle(title)
     frame:MakePopup()
@@ -101,11 +101,14 @@ function Nexus:StringQuery(title, text, callback)
     entry:Dock(FILL)
     entry:DockMargin(margin, margin, margin, margin)
     entry:SetPlaceholder(text)
+    if isNumeric then
+        entry:SetNumeric(true)    
+    end
 
     local button = frame:Add("Nexus:V2:Button")
     button:Dock(RIGHT)
     button:DockMargin(0, margin, margin, margin)
-    button:SetText("Ok")
+    button:SetText(buttonText or "Ok")
     button.DoClick = function()
         callback(entry:GetValue())
         frame:Remove()

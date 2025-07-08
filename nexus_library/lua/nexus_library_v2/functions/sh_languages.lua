@@ -25,6 +25,14 @@ local requiredText = {
         ["Failed load"] = "Failed to load language retry",
         ["Loading Language Package"] = "Loading Language Package %s/%s",
     },
+    ["sv"] = {
+        ["download"] = "Det här tillägget har inte inbyggt stöd för språket '%s'. Är det okej att ladda det via Google Translate?",
+        ["module not installed"] = "Den här servern stöder inte nedladdning av språk. Be ägaren installera gmsv_reqwest (github.com/WilliamVenner/gmsv_reqwest)",
+        ["yes"] = "Ja",
+        ["no"] = "Nej",
+        ["Failed load"] = "Misslyckades med att ladda språk, försök igen",
+        ["Loading Language Package"] = "Laddar språkpaket %s/%s",
+    },
     ["fr"] = {
         ["download"] = "Ce plugin ne prend pas en charge nativement la langue '%s', est-il possible de la charger depuis Google Translate ?",
         ["module not installed"] = "Ce serveur ne prend pas en charge le téléchargement des langues, veuillez demander au propriétaire d'installer gmsv_reqwest (github.com/WilliamVenner/gmsv_reqwest)",
@@ -105,6 +113,7 @@ local flag = {
     ["pl"] = "https://imgur.com/YM182Ct",
     ["de"] = "https://imgur.com/szfxnck",
     ["ru"] = "https://imgur.com/ncDNWcr",
+    ["sv"] = "https://imgur.com/sPRls1K",
 }
 
 function Nexus:GetCurFlag()
@@ -125,6 +134,10 @@ end
 function Nexus:GetPhrase(str, addon, ply)
     addon = addon or "Nexus Library"
 
+    if not Nexus.Languages[addon] then
+        return false
+    end
+
     str = string.gsub(str, "％s", "%%s")
 
     local lang = defaultLanguage
@@ -134,7 +147,13 @@ function Nexus:GetPhrase(str, addon, ply)
         local localLang = Nexus:GetSetting("nexus_language", defaultLanguage)
         if Nexus.Languages[addon][lang] and Nexus.Languages[addon][lang][str] then
             lang = localLang
+        else
+            return false
         end
+    end
+
+    if not Nexus.Languages[addon][lang] or not Nexus.Languages[addon][lang][str] then
+        return false
     end
 
     local data = string.gsub(Nexus.Languages[addon][lang][str], "％s", "%%s")
@@ -166,7 +185,7 @@ function Nexus:GetLanguages(addon)
 
     local format = {}
     for lang1, _ in pairs(Nexus.Languages[addon]) do
-        table.insert(format, lang)
+        table.insert(format, lang1)
     end
 
     return format

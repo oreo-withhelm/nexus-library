@@ -1,3 +1,6 @@
+resource.AddSingleFile("resource/fonts/lato-bold.ttf")
+resource.AddSingleFile("resource/fonts/lato-regular.ttf")
+
 util.AddNetworkString("Nexus:DownloadLanguage")
 util.AddNetworkString("Nexus:UpdateLanguage")
 util.AddNetworkString("Nexus:NetworkLanguage")

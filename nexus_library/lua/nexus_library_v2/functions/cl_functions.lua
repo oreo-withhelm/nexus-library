@@ -5,7 +5,7 @@ local margins = {
 }
 function Nexus:GetMargin(str)
     if not str then str = "normal" end
-    return margins[str]()
+    return math.Round(margins[str]())
 end
 
 local cachedScales = {}
@@ -17,16 +17,24 @@ function Nexus:GetScale(number)
 
     cachedScales[number] = value
 
-    return value
+    return math.Round(value)
 end
+
+hook.Add("OnScreenSizeChanged", "Nexus:ResetCache", function()
+    cachedScales = {}
+end)
 
 local openDermaMenu
 
-function Nexus:DermaMenu(tbl, onClicked, noSort)
+function Nexus:DermaMenu(tbl, onClicked, noSort, panel)
     if not tbl or not istable(tbl) then return end
 
     if !noSort then
-        table.sort(tbl, function(a, b) return tostring(a) < tostring(b) end)
+        if istable(tbl[1]) then
+            table.sort(tbl, function(a, b) return tostring(a.text) < tostring(b.text) end)
+        else
+            table.sort(tbl, function(a, b) return tostring(a) < tostring(b) end)
+        end    
     end
 
     if IsValid(openDermaMenu) then
@@ -38,9 +46,14 @@ function Nexus:DermaMenu(tbl, onClicked, noSort)
     local animTime = 0.15
 
     local x, y = input.GetCursorPos()
+
+    local pnlX, pnlY = 0, 0
+    if panel then
+        pnlX, pnlY = panel:LocalToScreen(0, 0)
+    end
     
     openDermaMenu = vgui.Create("Panel")
-    openDermaMenu:SetPos(x + scale, y - Nexus:GetScale(15))
+    openDermaMenu:SetPos(panel and pnlX or x + scale, panel and pnlY + panel:GetTall() or y - Nexus:GetScale(15))
     openDermaMenu:MakePopup()
     openDermaMenu:DockPadding(margin, margin, margin, margin)
     openDermaMenu.Paint = function(s, w, h)
@@ -64,13 +77,13 @@ function Nexus:DermaMenu(tbl, onClicked, noSort)
         local button = scroll:Add("DButton")
         button:Dock(TOP)
         button:DockMargin(0, 0, margin * 0.5, margin * 0.5)
-        button:SetText(tostring(v))
+        button:SetText(istable(v) and tostring(v.text) or tostring(v))
         button:SetFont(Nexus:GetFont({size = 15}))
         button:SetTextColor(Nexus:GetTextColor(Nexus:GetColor("secondary")))
         button:SizeToContents()
 
         surface.SetFont(Nexus:GetFont({size = 15}))
-        local btnW, btnH = surface.GetTextSize(tostring(v))
+        local btnW, btnH = surface.GetTextSize(istable(v) and tostring(v.text) or tostring(v))
         button:SetTall(btnH + margin)
         widest = math.max(widest, btnW + margin * 2)
         
@@ -105,7 +118,7 @@ function Nexus:DermaMenu(tbl, onClicked, noSort)
     widest = math.min(widest + margin*2 + Nexus:GetScale(4), Nexus:GetScale(200))
     totalHeight = math.min(totalHeight + margin, ScrH() - y - scale * 2)
     
-    openDermaMenu:SetSize(widest, totalHeight)
+    openDermaMenu:SetSize(math.max(widest, panel and panel:GetWide() or 0), totalHeight)
 
     local posX, posY = openDermaMenu:GetPos()
     if posX + widest > ScrW() then
@@ -116,6 +129,9 @@ function Nexus:DermaMenu(tbl, onClicked, noSort)
     end
 
     openDermaMenu.Think = function(s)
+        openDermaMenu:MoveToFront()
+        openDermaMenu:SetZPos(20)
+
         if not vgui.CursorVisible() or input.IsMouseDown(MOUSE_LEFT) then
             local mx, my = input.GetCursorPos()
             local x, y, w, h = s:GetBounds()
@@ -177,6 +193,7 @@ function Nexus:QueryPopup(str, onYes, onNo, yesText, noText)
     label:SetText(str)
     label:SetWrap(true)
     label:SetAutoStretchVertical(true)
+    label:SetContentAlignment(5)
     label:SetFont(Nexus:GetFont({size = 15}))
     label.PerformLayout = function(s)
         frame:SetTall(Nexus:GetScale(100) + Nexus:GetMargin("normal")*2 + label:GetTall())
