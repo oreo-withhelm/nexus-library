@@ -21,8 +21,9 @@ local function GetLastID()
     return tonumber(data and data[1].id or -1)
 end
 
-function SQL:Query(str, callback)
+function SQL:Query(str, callback, dontRetry, onERROR)
     callback = callback or function() end
+    onERROR = onERROR or function() end // this does nothing with sqlite
 
     if istable(str) then
         local data = str
@@ -38,8 +39,11 @@ function SQL:Query(str, callback)
     else
         str = string.Replace(str, "%auto_increment%", "AUTOINCREMENT")
     end
-    
+
     local data = sql.Query(str)
+    if self.Debug then
+        print(str)
+    end
     callback(data, GetLastID())
 end
 
@@ -120,8 +124,9 @@ function MySQL:Init(addonName, data, callback)
     query:wait()
 end
 
-function MySQL:Query(str, callback, dontRetry)
+function MySQL:Query(str, callback, dontRetry, onERROR)
     callback = callback or function() end
+    onERROR = onERROR or function() end
 
     if not self.Database then
         table.Add(self.ToProcess, {{str, callback}})
@@ -143,6 +148,10 @@ function MySQL:Query(str, callback, dontRetry)
         str = string.Replace(str, "%auto_increment%", "AUTO_INCREMENT")
     end
 
+    if self.Debug then
+        print(str)
+    end
+
     local query = self.Database:query(str)
     query.onSuccess = function(s, data)
         callback(data, tonumber(query:lastInsert()))
@@ -152,6 +161,8 @@ function MySQL:Query(str, callback, dontRetry)
         print()
         print("[ Nexus ][ "..self.addonName.." ] MySQL ERROR "..err)
         print(str)
+
+        onERROR(err)
 
         if dontRetry then return end
         self:Query(str, callback, true)
@@ -234,12 +245,13 @@ end
 
     data.queries = {} // queries that get loaded before Query is allowed to be called
 ]]--
-function Nexus:InitializeDatabase(addonName, dbType, data, callback)
+function Nexus:InitializeDatabase(addonName, dbType, data, callback, isDebug)
     data = data or {}
 
     local toUse = dbType == "mysql" and MySQL or SQL
 
     local MODULE = table.Copy(toUse)
+    MODULE.Debug = isDebug
     MODULE:Init(addonName, data, function()
         callback(MODULE)
     end)

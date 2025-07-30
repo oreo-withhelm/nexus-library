@@ -22,14 +22,14 @@ function Nexus:ReadUInt()
         shift = shift + 7
         counter = counter + 1
     end
-    return int
+    return math.max(int, 0)
 end
 
 local COLOR = 0
 local NUMBER = 1
 local STRING = 2
 local TABLE = 3
-local PLAYER = 4
+local BOOLEAN = 4
 local ANGLE = 5
 local ENTITY = 6
 local OTHER = 7
@@ -48,15 +48,15 @@ function Nexus:WriteType(value)
     elseif itemType == "table" then
         net.WriteUInt(TABLE, 3)
         net.WriteTable(value)
-    elseif itemType == "Player" then
-        net.WriteUInt(PLAYER, 3)
-        net.WritePlayer(value)
     elseif itemType == "Angle" then
         net.WriteUInt(ANGLE, 3)
         net.WriteAngle(value)
-    elseif itemType == "Entity" then
+    elseif itemType == "Entity" or itemType == "Player" then
         net.WriteUInt(ENTITY, 3)
         net.WriteEntity(value)
+    elseif itemType == "boolean" then
+        net.WriteUInt(BOOLEAN, 3)
+        net.WriteBool(value)
     else
         net.WriteUInt(OTHER, 3)
         net.WriteTable({value}, true)
@@ -73,12 +73,12 @@ function Nexus:ReadType()
         return net.ReadString()
     elseif int == TABLE then
         return net.ReadTable()
-    elseif int == PLAYER then
-        return net.ReadPlayer()
     elseif int == ANGLE then
         return net.ReadAngle()
     elseif int == ENTITY then
         return net.ReadEntity()
+    elseif int == BOOLEAN then
+        return net.ReadBool()
     elseif int == OTHER then
         return net.ReadTable(true)
     end

@@ -410,4 +410,6 @@ function RNDX.SetFlag(flags, flag, bool)
 	end
 end
 
+Nexus.RDNX = RNDX
+
 return RNDX

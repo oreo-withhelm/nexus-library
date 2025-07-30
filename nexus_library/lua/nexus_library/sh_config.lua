@@ -1,3 +1,5 @@
+print("[Nexus Library] v1.0.0 Loaded")
+
 Nexus.ServerName = "Nexus Addons"
 
 // This is a safety net in case the values in game get deleted

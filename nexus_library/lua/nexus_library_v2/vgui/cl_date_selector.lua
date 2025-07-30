@@ -59,8 +59,32 @@ function PANEL:Init()
     end
 end
 
+local function DateToEpoch(dateStr)
+    local day, month, year = dateStr:match("(%d+):(%d+):(%d+)")
+    if not day or not month or not year then
+        return false
+    end
+
+    day = tonumber(day)
+    month = tonumber(month)
+    year = tonumber(year)
+    
+    local timeTable = {
+        day = day,
+        month = month,
+        year = year,
+        hour = 0,
+        min = 0,
+        sec = 0
+    }
+
+    local epoch = os.time(timeTable)
+    
+    return epoch
+end
+
 function PANEL:GetEpoch()
-    return Nexus.Unbox:DateToEpoch(self.Day.Value..":"..self.Month.Value..":"..self.Year.Value)
+    return DateToEpoch(self.Day.Value..":"..self.Month.Value..":"..self.Year.Value)
 end
 
 function PANEL:OnChange(epoch)
@@ -74,6 +98,11 @@ function PANEL:VerifyTime()
     self.Day.Validated = true
     self.Month.Validated = true
     self.Year.Validated = true
+
+    if isstring(self.Day.Value) or isstring(self.Month.Value) or isstring(self.Year.Value) then
+        self.DateValid = false
+        return false
+    end
 
     if self.Day.Value == -1 and self.Month.Value == -1 and self.Year.Value == -1 then
         self.DateValid = true
@@ -103,6 +132,15 @@ function PANEL:VerifyTime()
     end
 
     self.DateValid = isValid
+end
+
+function PANEL:SetEpoch(epoch)
+    if not epoch then return end
+    local dateStr = os.date("%d/%m/%Y", epoch)
+    dateStr = string.Explode("/", dateStr)
+    self.Day.Value = tonumber(dateStr[1])
+    self.Month.Value = tonumber(dateStr[2])
+    self.Year.Value = tonumber(dateStr[3])
 end
 
 function PANEL:PerformLayout(w, h)

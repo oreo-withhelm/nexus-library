@@ -164,7 +164,31 @@ end
 function PANEL:AddChoice(a, func)
     func = func or function() end
 
-	table.Add(self.Options, {{text = a, func = func}})
+    if istable(a) then
+        table.Add(self.Options, {{text = a[1], value = a[2], func = func}})
+    else
+    	table.Add(self.Options, {{text = a, value = a, func = func}})
+    end
+end
+
+function PANEL:GetChoice()
+    local data = {}
+    for _, v in ipairs(self.Options) do
+        if v.Clicked then
+            data[v.value] = true
+        end
+    end
+    return data
+end
+
+function PANEL:SetChoice(tbl)
+    for _, v in ipairs(self.Options) do
+        if tbl[v.value] then
+            v.Clicked = true
+        end
+    end
+
+    self:FormatText()
 end
 
 function PANEL:Paint(w, h)

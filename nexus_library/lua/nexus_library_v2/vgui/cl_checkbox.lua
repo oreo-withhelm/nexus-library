@@ -1,5 +1,3 @@
-local RNDX = include("/external/cl_rndx.lua")
-
 local PANEL = {}
 AccessorFunc(PANEL, "Text", "Text", FORCE_STRING)
 
@@ -17,8 +15,8 @@ function PANEL:Init()
         local tall = h
         self.Container.CurValue = math.Approach(self.Container.CurValue, self:GetState() and w-tall or 0, FrameTime()*350)
 
-        RNDX.Draw(tall/2, 1, (h/2) - (tall/2), w-2, tall, self:GetState() and Nexus:GetColor("green") or Nexus:GetColor("red"))
-        RNDX.Draw(tall/2, self.Container.CurValue, (h/2) - (tall/2), tall, tall, Nexus:GetColor("header"))
+        Nexus.DrawRoundedBox(tall/2, 1, (h/2) - (tall/2), w-2, tall, self:GetState() and Nexus:GetColor("green") or Nexus:GetColor("red"))
+        Nexus.DrawRoundedBox(tall/2, self.Container.CurValue, (h/2) - (tall/2), tall, tall, Nexus:GetColor("header"))
     end
     self.Container.DoClick = function()
         self:SetState(!self:GetState())
