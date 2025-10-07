@@ -161,8 +161,8 @@ function Nexus:QueryPopup(str, onYes, onNo, yesText, noText)
     end
 
     onNo = function() end
-    yesText = yesText or Nexus:GetPhrase("Yes")
-    noText = noText or Nexus:GetPhrase("No")
+    yesText = yesText or Nexus:GetPhrase("Yes", "nexus_lib")
+    noText = noText or Nexus:GetPhrase("No", "nexus_lib")
 
     if IsValid(Nexus.Popup) then Nexus.Popup:Remove() end
     local background = vgui.Create("DPanel")

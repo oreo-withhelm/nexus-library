@@ -3,6 +3,8 @@ Nexus:AddLanguages("nexus_lib", "en", {
     ["Reset"] = "Reset",
     ["Search"] = "Search",
     ["Insert"] = "Insert",
+    ["Yes"] = "Yes",
+    ["No"] = "No",
 })
 
 Nexus.Builder:Start()

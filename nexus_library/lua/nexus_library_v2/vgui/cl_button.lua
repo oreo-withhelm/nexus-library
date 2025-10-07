@@ -88,7 +88,7 @@ end
 function PANEL:SetIcon(str, func, color)
     self.icon = str
     self.iconH = func or function(h) return h*.55 end
-    self.imageColor = color
+    self.imageColor = color or color_white
 end
 
 function PANEL:SetColor(col)
