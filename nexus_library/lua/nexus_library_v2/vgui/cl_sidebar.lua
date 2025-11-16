@@ -33,7 +33,7 @@ function PANEL:AddSpacer()
     self.spacer:SetTall(Nexus:GetScale(2))
     self.spacer.isSpacer = true
     self.spacer.Paint = function(s, w, h)
-        Nexus.RDNX.Draw(Nexus:GetMargin("small"), 0, 0, w, h, Nexus:GetColor("highlight"))
+        Nexus.RDNX.Draw(Nexus:GetMargin("small"), 0, 0, w, h, Nexus:GetColor("highlight"), nil, true)
     end
 end
 
@@ -55,48 +55,12 @@ function PANEL:AddItem(text, func, icon, id, data)
     local overlayFrac = 0
     local textFrac = 0
 
-    local button = self.Scroll:Add("DButton")
+    local button = self.Scroll:Add("Nexus:V2:Button")
     button:SetTall(Nexus:GetScale(40))
-    button:SetText("")
-    button.Paint = function(s, w, h)
-        if self.active == id then
-            bgFrac = math.min(1, bgFrac+FrameTime()*5)
-            textFrac = math.min(1, textFrac+FrameTime()*5)
-        else
-            bgFrac = math.max(0, bgFrac-FrameTime()*5)
-        end
-        hoverColor = color_zero:Lerp(Nexus:GetColor("green"), bgFrac)
-        Nexus.RDNX.Draw(Nexus:GetMargin(), 0, 0, w, h, hoverColor)
-
-        if s:IsHovered() then
-            overlayFrac = math.min(1, overlayFrac+FrameTime()*5)
-            textFrac = math.min(1, textFrac+FrameTime()*5)
-        else
-            overlayFrac = math.max(0, overlayFrac-FrameTime()*5)
-        end
-        bgColor = color_zero:Lerp(Nexus:GetColor("overlay"), overlayFrac)
-        Nexus.RDNX.Draw(Nexus:GetMargin(), 0, 0, w, h, bgColor)
-
-        if not (s:IsHovered() or self.active == id) then
-            textFrac = math.max(0, textFrac-FrameTime()*5)
-        end
-
-        local wantedColor = self.active == id and Nexus:GetTextColor(Nexus:GetColor("green"))
-            or s:IsHovered() and Nexus:GetColor("primary-text")
-            or Nexus:GetColor("secondary-text")
-
-        local lerpedTextColor = textColor:Lerp(wantedColor, textFrac)
-
-        local x = Nexus:GetMargin("large")
-        local size = (h - Nexus:GetMargin("small")*2)*.75
-        if icon then
-            Nexus:DrawImgur(icon, x, (h/2) - (size/2), size, size, lerpedTextColor)
-            x = x + size + Nexus:GetMargin("small")
-        end
-
-        draw.SimpleText(text, Nexus:GetFont({size = h*.45, dontScale = true}), x, h/2, lerpedTextColor, 0, 1)
-    end
-
+    button:SetText(text)
+    button:SetContentAlignment(4)
+    button:SetFont(Nexus:GetFont({size = 18}))
+    button:SetIcon(icon)
     button.func = func
     button.data = data
     button.DoClick = function(s)
@@ -105,9 +69,15 @@ function PANEL:AddItem(text, func, icon, id, data)
 
     self.buttons[id] = button
 
+    button:SetColor(color_zero)
+    button:SetTextColor(Nexus:GetColor("secondary-text"))
+    button.imageColor = Nexus:GetColor("secondary-text")
+
     if self.active == id then
         self:SelectItem(id)
     end
+
+    return button
 end
 
 function PANEL:SetBody(bod)
@@ -115,9 +85,20 @@ function PANEL:SetBody(bod)
 end
 
 function PANEL:SelectItem(id)
+    for _, button in pairs(self.buttons) do
+        button:SetColor(color_zero)
+        button:SetTextColor(Nexus:GetColor("secondary-text"))
+        button.imageColor = Nexus:GetColor("secondary-text")
+    end
+
     for itemID, button in pairs(self.buttons) do
         if itemID == id then
             self.active = id
+
+            button:SetColor(Nexus:GetColor("green"))
+            button:SetTextColor(Nexus:GetTextColor(Nexus:GetColor("green")))
+            button.imageColor = color_white
+
             if isfunction(button.func) then
                 button.func()
             else
@@ -140,7 +121,7 @@ function PANEL:SelectItem(id)
     end
 end
 
-function PANEL:OnChange(panel)
+function PANEL:OnChange(panel, func, data)
 end
 // legacy
 function PANEL:SetMask(corners) end

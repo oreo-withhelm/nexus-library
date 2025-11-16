@@ -1,6 +1,7 @@
 local color_zero = Color(0, 0, 0, 0)
 local PANEL = {}
 function PANEL:Init()
+    self:SetContentAlignment(5)
     self:SetTall(Nexus:GetScale(35))
 
     self:SetText("")
@@ -69,7 +70,7 @@ function PANEL:OnMouseReleased(mousecode)
 		self:DoClick()
         self.pulse_time = CurTime()
 
-        self.origin, _ = self:LocalCursorPos()
+        self.origin, self.originY = self:LocalCursorPos()
     end
 
 	if (mousecode == MOUSE_MIDDLE) then
@@ -95,11 +96,19 @@ function PANEL:SetColor(col)
     self.col = col
 end
 
+function PANEL:GetColor()
+    return self.col
+end
+
 function PANEL:SetSecondary()
     self.col = Nexus:GetColor("secondary-2")
 end
 
 function PANEL:AutoWide(extras)
+    if not isnumber(extras) then
+        extras = 0
+    end
+
     extras = extras or 0
 
     surface.SetFont(self:GetFont())
@@ -115,23 +124,33 @@ function PANEL:SetCorners(tl, tr, bl, br)
     self.Corners = {tl, tr, bl, br}
 end
 
+function PANEL:SetContentAlignment(alignment)
+    self.ContentAlignment = alignment or 5
+end
+
 function PANEL:Paint(w, h)
-    draw.RoundedBoxEx(Nexus:GetMargin(), 0, 0, w, h, self.col, self.Corners[1], self.Corners[2], self.Corners[3], self.Corners[4])
+    local num = 0
+    num = not self.Corners[1] and num+Nexus.RNDX.NO_TL or num
+    num = not self.Corners[2] and num+Nexus.RNDX.NO_TR or num
+    num = not self.Corners[3] and num+Nexus.RNDX.NO_BL or num
+    num = not self.Corners[4] and num+Nexus.RNDX.NO_BR or num
+
+    Nexus.RNDX.Draw(Nexus:GetMargin(), 0, 0, w, h, self.col, num, true)
 
     local textCol = self.TextCol or Nexus:GetTextColor(self.col)
 
-    local tw, _ = self.ShouldHideText and 0 or draw.SimpleText(self.Text, self:GetFont(), 0, 0, color_zero)
-    local totalWide = tw + (self.icon and self.iconH(h) + (self.ShouldHideText and 0 or Nexus:GetMargin("small")) or 0)
+    local tw, _ = (self.ShouldHideText or self.Text == "") and 0 or draw.SimpleText(self.Text, self:GetFont(), 0, 0, color_zero)
+    local totalWide = tw + (self.icon and self.iconH(h) + ((self.ShouldHideText or self.Text == "") and 0 or Nexus:GetMargin()) or 0)
 
-    local x = (w/2) - (totalWide/2)
+    local x = self.ContentAlignment == 5 and (w-totalWide)/2 or Nexus:GetMargin("large")
     if self.icon then
         local size = self.iconH(h)
         local y = (h/2) - (size/2)
         Nexus:DrawImgur(self.icon, x, y, size, size, self.imageColor)
-        x = x + (self.ShouldHideText and 0 or Nexus:GetMargin("small")) + size
+        x = x + ((self.ShouldHideText or self.Text == "") and 0 or Nexus:GetMargin()) + size
     end
 
-    draw.SimpleText(self.ShouldHideText and "" or self.Text, self:GetFont(), x, h - (h/2), textCol, 0, 1)
+    draw.SimpleText((self.ShouldHideText or self.Text == "") and "" or self.Text, self:GetFont(), x, h - (h/2), textCol, 0, 1)
 
     if self:IsHovered() then
 		self.backgroundFrac = math.min(1, self.backgroundFrac+FrameTime()*5)
@@ -139,7 +158,7 @@ function PANEL:Paint(w, h)
 		self.backgroundFrac = math.max(0, self.backgroundFrac-FrameTime()*5)
 	end
 	self.backgroundCol = color_zero:Lerp(Nexus:GetColor("overlay"), self.backgroundFrac)
-	draw.RoundedBoxEx(Nexus:GetMargin(), 0, 0, w, h, self.backgroundCol, self.Corners[1], self.Corners[2], self.Corners[3], self.Corners[4])
+	Nexus.RNDX.Draw(Nexus:GetMargin(), 0, 0, w, h, self.backgroundCol, num)
 
     if self.pulse_time then
         local t = CurTime() - self.pulse_time
@@ -150,7 +169,11 @@ function PANEL:Paint(w, h)
         local size = max_dist * eased_t
 
         if size < max_dist and t < duration then
-            Nexus.RNDX.Draw(Nexus:GetMargin(), self.origin - size / 2, 0, size, h, Nexus:GetColor("highlight"))
+            Nexus.Masks.Start()
+                Nexus.RNDX.Draw(Nexus:GetMargin(), 0, 0, w, h, color_white, num)
+            Nexus.Masks.Source()
+                Nexus.RNDX.Draw(h/2, self.origin - size / 2, self.originY - (size/2), size, size, Nexus:GetColor("highlight"), num)
+            Nexus.Masks.End()
         else
             self.pulse_time = nil
         end

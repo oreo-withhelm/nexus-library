@@ -7,7 +7,7 @@ To add an item to the moveable tree use (note this will be the size and pos of t
 moveableTree:AddItem(button, w, h, x, y)
 
 Example of use:
-local moveableTree = frame:Add("LordsUI:MoveableTree")
+local moveableTree = frame:Add("Nexus:V2:MoveableTree")
 moveableTree:Dock(FILL)
 
 for i = 1, 15 do
@@ -38,6 +38,7 @@ function PANEL:Init()
     self.ScaleBar:SetMinMax(self.MinScale, self.MaxScale)
     self.ScaleBar:SetValue(self:GetScale())
     self.ScaleBar.OnValueChanged = function(s, val)
+        if self.canOnChange then return end
         self:SetScale(val)
     end
 
@@ -51,11 +52,19 @@ function PANEL:Init()
     end
     self.ResetButton.DoClick = function()
         surface.PlaySound("buttons/button15.wav")
-        self.Diff = Vector(0, 0)
+        self.Diff = nil
         self.ShouldDrag = false
         self:SetScale(1)
         self:UpdatePanels()
     end
+end
+
+function PANEL:SetMinMax(min, max)
+    self:SetMinScale(min)
+    self:SetMaxScale(max)
+    self.canOnChange = true
+    self.ScaleBar:SetMinMax(self.MinScale, self.MaxScale)
+    self.canOnChange = false
 end
 
 function PANEL:SetScale(scale)
@@ -140,5 +149,32 @@ end
 function PANEL:Paint(w, h)
     surface.SetDrawColor(self:GetBackgroundColor())
     surface.DrawRect(0, 0, w, h)
+
+    local scale = self:GetScale()
+    local gridSize = self.RowSize * scale
+    local diff = self.Diff or Vector(0, 0)
+
+    local offsetX = diff.x % gridSize
+    local offsetY = diff.y % gridSize
+
+    surface.SetDrawColor(255, 255, 255, 2)
+    for x = offsetX, w, gridSize do
+        surface.DrawLine(x, 0, x, h)
+    end
+    for y = offsetY, h, gridSize do
+        surface.DrawLine(0, y, w, y)
+    end
+
+    surface.SetDrawColor(255, 255, 255, 2)
+    local majorGridSize = gridSize * 5
+    local majorOffsetX = diff.x % majorGridSize
+    local majorOffsetY = diff.y % majorGridSize
+    for x = majorOffsetX, w, majorGridSize do
+        surface.DrawLine(x, 0, x, h)
+    end
+    for y = majorOffsetY, h, majorGridSize do
+        surface.DrawLine(0, y, w, y)
+    end
 end
+
 vgui.Register("Nexus:V2:MoveableTree", PANEL, "EditablePanel")

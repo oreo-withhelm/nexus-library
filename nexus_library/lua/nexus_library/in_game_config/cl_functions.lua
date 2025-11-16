@@ -5,24 +5,15 @@ concommand.Add("nexus_config", function()
     frame:MakePopup()
     frame:Center()
     frame.ConfigFrame = frame
+    Nexus.ConfigFrame = frame
     frame.OnRefresh = function()
         RunConsoleCommand("nexus_config")
     end
     frame:SetTitle(Nexus:GetPhrase("Config"))
-    frame:AddHeaderButton("https://imgur.com/ToBFMX2", function()
-        local oldBuilder = Nexus.UIBuilder:Start()
-        :CreateFrame({
-            id = "nexus_config",
-            title = "Nexus Addons (v1)",
-            size = {w = Nexus:Scale(1000), h = Nexus:Scale(800)},
-        })
-
-        local panel = oldBuilder:GetLastPanel():Add("Nexus:IGC:Menu")
-        panel:Dock(FILL)
-    end)
 
     local panel = frame:Add("Nexus:Config:MenuV2")
     panel:Dock(FILL)
+    Nexus.ConfigFrame.Contents = panel
 end)
 
 Nexus.DataCache = Nexus.DataCache or {}

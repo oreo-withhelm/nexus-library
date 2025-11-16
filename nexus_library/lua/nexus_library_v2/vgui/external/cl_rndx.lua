@@ -239,7 +239,13 @@ local function draw_rounded(x, y, w, h, col, flags, tl, tr, bl, br, texture, thi
 	surface_DrawTexturedRectUV(x, y, w, h, -0.015625, -0.015625, 1.015625, 1.015625)
 end
 
-function RNDX.Draw(r, x, y, w, h, col, flags)
+function RNDX.Draw(r, x, y, w, h, col, flags, optionalBLUR)
+	if col.a < 255 and col.a != 0 and optionalBLUR and string.Right(Nexus:GetSetting("nexus_theme", "Default"), 4) == "Blur" then
+		RNDX.Draw(r, x, y, w, h, color_white, Nexus.RNDX.BLUR)
+		draw_rounded(x, y, w, h, col, flags, r, r, r, r)
+		return
+	end
+
 	draw_rounded(x, y, w, h, col, flags, r, r, r, r)
 end
 Nexus.DrawRoundedBox = RNDX.Draw
@@ -411,6 +417,6 @@ function RNDX.SetFlag(flags, flag, bool)
 end
 
 Nexus.RDNX = RNDX
-Nexus.RNDX = Nexus.RDNX
+Nexus.RNDX = RNDX
 
 return RNDX

@@ -92,7 +92,7 @@ function PANEL:CenterPlaceholder()
 end
 
 function PANEL:Paint(w, h)
-	Nexus.RDNX.Draw(Nexus:GetMargin(), 0, 0, w, h, Nexus:GetColor("secondary-2"))
+	Nexus.RDNX.Draw(Nexus:GetMargin(), 0, 0, w, h, Nexus:GetColor("secondary-2"), nil, true)
 
 	if self.TextEntry:IsHovered() or self.TextEntry:HasFocus() then
 		self.HoverFrac = math.min(1, self.HoverFrac+FrameTime()*5)

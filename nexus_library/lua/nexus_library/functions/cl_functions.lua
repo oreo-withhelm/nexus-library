@@ -47,14 +47,14 @@ function Nexus:Overhead(ent, str, override, secondaryStr)
     cam.Start3D2D(pos + ent:GetUp() * (override or 80), Angle(0, eyeAngle.y - 90, 90), 0.05)
         local y = secondaryStr and -tall*1.8 or 0 - (tall/2)
         draw.RoundedBox(10, -wide/2, y, wide, tall, Nexus:GetColor("background"))
-        draw.SimpleText(str, font, 0, y + tall/2, Nexus:GetColor("primary-text"), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        draw.SimpleText(str, font, 0, y + tall/2, Nexus:GetTextColor(Nexus:GetColor("background")), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 
         if secondaryStr then
             local tw, th = surface.GetTextSize(secondaryStr)
             local wide = tw + Nexus:Scale(150)
             local tall = th + Nexus:Scale(60)
             draw.RoundedBox(10, -wide/2, y + tall + 10, wide, tall, Nexus:GetColor("background"))
-            draw.SimpleText(secondaryStr, font, 0, y + tall + 10 + tall/2, Nexus:GetColor("primary-text"), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+            draw.SimpleText(secondaryStr, font, 0, y + tall + 10 + tall/2, Nexus:GetTextColor(Nexus:GetColor("background")), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
         end
     cam.End3D2D()
 end
@@ -87,14 +87,38 @@ net.Receive("Nexus:Notification", function()
     notification.AddLegacy(isPhrase and Nexus:GetPhrase(str, addon) or str, err, time)
 end)
 
+local bgCol = Color(0, 0, 0, 150)
 function Nexus:StringQuery(title, text, callback, buttonText, isNumeric)
     callback = callback or function() end
 
-    local frame = vgui.Create("Nexus:V2:Frame")
+    local bgBlur = vgui.Create("DPanel")
+    bgBlur:SetSize(ScrW(), ScrH())
+    bgBlur:MakePopup()
+    bgBlur.Paint = function(s, w, h)
+        Nexus.RNDX.Draw(0, 0, 0, w, h, color_white, Nexus.RNDX.BLUR)
+        Nexus.RNDX.Draw(0, 0, 0, w, h, bgCol)
+    end
+    bgBlur.Think = function(s)
+        if not IsValid(bgBlur.frame) then
+            s:Remove()
+        end
+    end
+
+    local frame = bgBlur:Add("Nexus:V2:Frame")
     frame:SetSize(Nexus:Scale(400), Nexus:GetScale(110))
     frame:Center()
     frame:SetTitle(title)
     frame:MakePopup()
+    local old = frame.Think or function() end
+    frame.Think = function()
+        old(frame)
+        frame:MoveToFront()
+
+        if not bgBlur:IsValid() then
+            frame:Remove()
+        end
+    end
+    bgBlur.frame = frame
 
     local margin = Nexus:GetMargin()
     local entry = frame:Add("Nexus:V2:TextEntry")
@@ -108,7 +132,7 @@ function Nexus:StringQuery(title, text, callback, buttonText, isNumeric)
     local button = frame:Add("Nexus:V2:Button")
     button:Dock(RIGHT)
     button:DockMargin(0, margin, margin, margin)
-    button:SetText(buttonText or "Ok")
+    button:SetText(buttonText or Nexus:GetPhrase("Ok", "nexus_lib"))
     button.DoClick = function()
         callback(entry:GetValue())
         frame:Remove()
@@ -231,24 +255,42 @@ end
 
 local colCache = {}
 function Nexus:GetTextColor(color, alpha)
-    if alpha then
-        color = table.Copy(color)
-        color.a = alpha
+    local col = color
+    if alpha and isnumber(alpha) then
+        col = table.Copy(color)
+        col.a = alpha
     end
 
-    local str = color.r .. color.g .. color.b .. color.a
-    if colCache[str] then return colCache[str] end
+    local key = string.format("%d,%d,%d,%d", col.r, col.g, col.b, col.a)
+    if alpha and isbool(alpha) then
+        key = key .. "_alpha"
+    end
+    if colCache[key] then return colCache[key] end
 
-    local r = color.r / 255
-    local g = color.g / 255
-    local b = color.b / 255
-    r, g, b = toLinear(r), toLinear(g), toLinear(b)
+    local a = col.a / 255
+    local r = col.r / 255
+    local g = col.g / 255
+    local b = col.b / 255
 
-    local luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b
-    local col = luminance > 0.179 and Nexus:GetColor("background") or Nexus:GetColor("primary-text")
+    local bgR, bgG, bgB = 0, 0, 0
+    local blendedR = r * a + bgR * (1 - a)
+    local blendedG = g * a + bgG * (1 - a)
+    local blendedB = b * a + bgB * (1 - a)
 
-    colCache[str] = col
-    return col
+    blendedR = toLinear(blendedR)
+    blendedG = toLinear(blendedG)
+    blendedB = toLinear(blendedB)
+
+    local luminance = 0.2126 * blendedR + 0.7152 * blendedG + 0.0722 * blendedB
+
+    local textCol = luminance > 0.179 and Nexus:GetColor("background-text") or Nexus:GetColor("primary-text")
+    print(alpha)
+    if alpha and isbool(alpha) then
+        textCol = luminance > 0.179 and Nexus:GetColor("background-secondary-text") or Nexus:GetColor("secondary-text")
+    end
+
+    colCache[key] = textCol
+    return textCol
 end
 
 if not file.Exists("nexus_user_settings.txt", "DATA") then

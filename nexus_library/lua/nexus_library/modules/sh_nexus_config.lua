@@ -5,6 +5,9 @@ Nexus:AddLanguages("nexus_lib", "en", {
     ["Insert"] = "Insert",
     ["Yes"] = "Yes",
     ["No"] = "No",
+    ["Ok"] = "Ok",
+    ["Default Theme"] = "Default theme for Nexus UI",
+    ["Edit Ranks"] = "Usergroups that have access to the Nexus Admin Panel.",
 })
 
 Nexus.Builder:Start()
@@ -17,7 +20,7 @@ Nexus.Builder:Start()
             ["superadmin"] = true,
         },
 
-        label = "Ranks that can edit nexus_config values",
+        label = {"Edit Ranks", "nexus_lib"},
 
         placeholder = "Usergroup",
         isNumeric = false,
@@ -45,5 +48,24 @@ Nexus.Builder:Start()
         isNumeric = false,
 
         onChange = function(value) end,
+    })
+
+    :AddButtons({
+        id = "nexus-forcetheme",
+        showSelected = true,
+        defaultValue = "Default",
+
+        label = {"Default Theme", "nexus_lib"},
+        buttons = function()
+            local tbl = {}
+            for id, theme in pairs(Nexus:GetThemes()) do
+                table.insert(tbl, {text = id, value = id})
+            end
+            return tbl
+        end,
+
+        onChange = function(value, ply)
+
+        end,
     })
 :End()

@@ -9,8 +9,9 @@ function PANEL:Init()
     self.Day:Dock(LEFT)
     self.Day:SetText("")
     self.Day.Value = -1
+    self.Day:SetColor(Color(0, 0, 0, 0))
     self.Day.PaintOver = function(s, w, h)
-        draw.SimpleText(s.Value == -1 and "dd" or s.Value, Nexus:GetFont({size = 15}), w/2, h/2, Nexus:GetColor("primary-text"), 1, 1)
+        draw.SimpleText(s.Value == -1 and "dd" or s.Value, Nexus:GetFont({size = 15}), w/2, h/2, Nexus:GetTextColor(Nexus:GetColor("secondary-2")), 1, 1)
     end
     self.Day.DoClick = function(s)
         local tbl = {Nexus:GetPhrase("Reset", "nexus_lib")}
@@ -30,8 +31,9 @@ function PANEL:Init()
     self.Month:Dock(LEFT)
     self.Month:SetText("")
     self.Month.Value = -1
+    self.Month:SetColor(Color(0, 0, 0, 0))
     self.Month.PaintOver = function(s, w, h)
-        draw.SimpleText(s.Value == -1 and "mm" or s.Value, Nexus:GetFont({size = 15}), w/2, h/2, Nexus:GetColor("primary-text"), 1, 1)
+        draw.SimpleText(s.Value == -1 and "mm" or s.Value, Nexus:GetFont({size = 15}), w/2, h/2, Nexus:GetTextColor(Nexus:GetColor("secondary-2")), 1, 1)
     end
     self.Month.DoClick = function(s)
         local tbl = {Nexus:GetPhrase("Reset", "nexus_lib"), 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}
@@ -46,9 +48,10 @@ function PANEL:Init()
     self.Year:SetCorners(false, true, false, true)
     self.Year:Dock(LEFT)
     self.Year:SetText("")
+    self.Year:SetColor(Color(0, 0, 0, 0))
     self.Year.Value = -1
     self.Year.PaintOver = function(s, w, h)
-        draw.SimpleText(s.Value == -1 and "yyyy" or s.Value, Nexus:GetFont({size = 15}), w/2, h/2, Nexus:GetColor("primary-text"), 1, 1)
+        draw.SimpleText(s.Value == -1 and "yyyy" or s.Value, Nexus:GetFont({size = 15}), w/2, h/2, Nexus:GetTextColor(Nexus:GetColor("secondary-2")), 1, 1)
     end
     self.Year.DoClick = function(s)
         local tbl = {Nexus:GetPhrase("Reset", "nexus_lib")}
@@ -156,10 +159,10 @@ function PANEL:PerformLayout(w, h)
 end
 
 function PANEL:Paint(w, h)
-    draw.RoundedBox(Nexus:GetMargin(), 0, 0, w, h, Nexus:GetColor("secondary-2"))
+    Nexus.RNDX.Draw(Nexus:GetMargin(), 0, 0, w, h, Nexus:GetColor("secondary-2"), nil, true)
 
     if !self.DateValid then
-        draw.RoundedBox(Nexus:GetMargin(), 0, 0, w, h, Color(255, 100, 100, 50))
+        Nexus.RNDX.Draw(Nexus:GetMargin(), 0, 0, w, h, Color(255, 100, 100, 50), nil, true)
     end
 end
 vgui.Register("Nexus:V2:Date", PANEL, "EditablePanel")

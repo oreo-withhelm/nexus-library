@@ -9,7 +9,8 @@ function PANEL:Init()
         canvasPanel:GetParent():OnMousePressed( code )
     end
     self.CanvasPanel:SetMouseInputEnabled( true )
-    self.CanvasPanel.PerformLayout = function( canvasPanel )
+
+    self.CanvasPanel.PerformLayout = function( canvasPanel , w, h)
         self:PerformLayoutInternal()
         self:InvalidateParent()
     end
@@ -74,7 +75,7 @@ function PANEL:PerformLayoutInternal()
     end
 
     self.CanvasPanel:SetPos( xOffset, 0 )
-    self.CanvasPanel:SetTall( h )
+    self.CanvasPanel:SetTall(self.Scrollbar:IsVisible() and h - Nexus:GetMargin("small") or h)
 
     self:Rebuild()
 
@@ -98,12 +99,6 @@ end
 
 function PANEL:PerformLayout(w, h)
     self:PerformLayoutInternal()
-
-    self.Scrollbar:SetTall(0)
-
-    if self.CanvasPanel:GetWide() > w then
-        self.Scrollbar:SetTall(Nexus:GetMargin("small"))
-    end
 end
 
 function PANEL:Paint(w, h)

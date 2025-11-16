@@ -107,7 +107,7 @@ net.Receive("Nexus:DownloadLanguage", function(len, ply)
             reqwest({
                 method = "POST",
                 url = string.Replace(urlParam, "\n", ""),
-                timeout = 60,
+                timeout = 300,
             
                 body = util.TableToJSON({
                     text = requestFormat,

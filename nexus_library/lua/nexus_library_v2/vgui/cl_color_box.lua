@@ -33,7 +33,7 @@ function PANEL:DoClick()
     blurMenu:SetSize(ScrW(), ScrH())
     blurMenu:MakePopup()
     blurMenu.Paint = function(s, w, h)
-        Nexus.RNDX.Draw(0, 0, 0, w, h, nil, Nexus.RNDX.BLUR)
+        Nexus.RNDX.Draw(0, 0, 0, w, h, color_white, Nexus.RNDX.BLUR)
         Nexus.RNDX.Draw(0, 0, 0, w, h, blurCol)
     end
 
@@ -93,7 +93,7 @@ function PANEL:Paint(w, h)
         col = HSVToColor((CurTime() * 75) % 360, 1, 1)
     end
 
-    Nexus.RNDX.Draw(Nexus:GetMargin(), 0, 0, w, h, col)
+    Nexus.RNDX.Draw(Nexus:GetMargin(), 0, 0, w, h, col, nil, true)
 
 	if self:IsHovered() then
 		self.HoverFrac = math.min(1, self.HoverFrac+FrameTime()*5)

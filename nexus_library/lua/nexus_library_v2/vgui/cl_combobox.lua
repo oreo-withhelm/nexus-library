@@ -40,7 +40,7 @@ function Nexus.PopoutMenu(s, tbl, onClicked, dontSort, spawnOnMouse, hide)
     panel:SetSize(Nexus:GetScale(200), Nexus:GetScale(300))
     panel:SetPos(x, y)
     panel.Paint = function(s, w, h)
-        draw.RoundedBox(margin, 0, 0, w, h, Nexus:GetColor("background"))
+        Nexus.RNDX.Draw(margin, 0, 0, w, h, Nexus:GetColor("background"), nil, true)
     end
 
     local scroll = panel:Add("Nexus:V2:ScrollPanel")
@@ -134,8 +134,8 @@ function PANEL:AutoWide()
 end
 
 function PANEL:PaintOver(w, h)
-	draw.SimpleText(self:GetText(), self:GetFont(), Nexus:GetMargin("large"), h/2, Nexus:GetColor("primary-text"), 0, 1)
-	draw.SimpleText("•", self:GetFont(), w - Nexus:GetMargin("large"), h/2, Nexus:GetColor("primary-text"), TEXT_ALIGN_RIGHT, 1)
+	draw.SimpleText(self:GetText(), self:GetFont(), Nexus:GetMargin("large"), h/2, Nexus:GetTextColor(self:GetColor()), 0, 1)
+	draw.SimpleText("•", self:GetFont(), w - Nexus:GetMargin("large"), h/2, Nexus:GetTextColor(self:GetColor()), TEXT_ALIGN_RIGHT, 1)
 
 	if self:IsHovered() then
 		self.HoverFrac = math.min(1, self.HoverFrac+FrameTime()*5)

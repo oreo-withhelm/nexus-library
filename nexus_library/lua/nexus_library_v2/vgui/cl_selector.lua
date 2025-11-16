@@ -74,7 +74,7 @@ function PANEL:DoClick()
     openDermaMenu.CParent = self
     openDermaMenu:DockPadding(margin, margin, margin, margin)
     openDermaMenu.Paint = function(s, w, h)
-        draw.RoundedBoxEx(margin, 0, 0, w, h, Nexus:GetColor("secondary-2"), true, true, true, true)
+        Nexus.RNDX.Draw(margin, 0, 0, w, h, Nexus:GetColor("secondary-2"), nil, true)
     end
 
     openDermaMenu:SetAlpha(0)
@@ -111,7 +111,7 @@ function PANEL:DoClick()
 
         button.Paint = function(s, w, h)
             local col = s:IsHovered() and Nexus:GetColor("overlay") or color_zero
-            draw.RoundedBox(Nexus:GetMargin("normal"), 0, 0, w, h, col)
+            Nexus.RNDX.Draw(Nexus:GetMargin("normal"), 0, 0, w, h, col, nil, true)
 
             draw.SimpleText(s.CText, s:GetFont(), Nexus:GetMargin(), h/2, Nexus:GetTextColor(Nexus:GetColor("secondary")), 0, 1)
         end
@@ -199,7 +199,7 @@ function PANEL:PaintOver(w, h)
 	draw.SimpleText("•", self:GetFont(), w - Nexus:GetMargin() - 4, h/2, Nexus:GetColor("primary-text"), TEXT_ALIGN_RIGHT, 1)
 
     if self:IsHovered() then
-        draw.RoundedBox(Nexus:GetMargin(), 0, 0, w, h, Nexus:GetColor("overlay"))
+        Nexus.RNDX.Draw(Nexus:GetMargin(), 0, 0, w, h, Nexus:GetColor("overlay"))
     end
 end
 vgui.Register("Nexus:V2:Selector", PANEL, "Nexus:V2:Button")

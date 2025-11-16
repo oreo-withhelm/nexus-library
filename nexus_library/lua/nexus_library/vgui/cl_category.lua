@@ -1,6 +1,6 @@
 local PANEL = {}
 function PANEL:Init()
-    self.margin = Nexus:Scale(10)
+    self.margin = Nexus:GetMargin()
     self.BaseH = Nexus:GetScale(50)
     self:SetTall(self.BaseH)
     self:HideText()
@@ -85,10 +85,15 @@ function PANEL:OnSizeChanged(w, h)
     self.Canvas:SetSize(w, h - self.BaseH)
 end
 
-function PANEL:PaintOver(w, h)
-    draw.SimpleText(self:GetText(), Nexus:GetFont({size = 20}), self.margin*2, self.BaseH/2, Nexus:GetColor("primary-text"), TEXT_ALIGN_LEFT, 1)
+function PANEL:HideArrow(bool)
+    self.ShouldHideArrow = bool
+end
 
+function PANEL:PaintOver(w, h)
+    draw.SimpleText(self:GetText(), Nexus:GetFont({size = 20}), self.margin*2, self.BaseH/2, Nexus:GetTextColor(self:GetColor()), TEXT_ALIGN_LEFT, 1)
+
+    if self.ShouldHideArrow then return end
     local size = self.BaseH*.4
-    Nexus:DrawImgur("2QGKAd6", w - size - self.margin*4, self.BaseH/2, size, size, Nexus:GetColor("primary-text"), self:IsExpanded() and 180 or 0)
+    Nexus:DrawImgur("2QGKAd6", w - size - self.margin*4, self.BaseH/2, size, size, Nexus:GetTextColor(self:GetColor()), self:IsExpanded() and 180 or 0)
 end
 vgui.Register("Nexus:Category", PANEL, "Nexus:V2:Button")

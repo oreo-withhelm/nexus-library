@@ -12,7 +12,7 @@ function PANEL:Init()
 
     self.GripButton = vgui.Create( "DScrollBarGrip", self )
     self.GripButton.Paint = function(s, w, h)
-        Nexus.RDNX.Draw(Nexus:GetMargin(), 0, 0, w, h, Nexus:GetColor("primary-text"), false, false, true, true)
+        Nexus.RDNX.Draw(Nexus:GetMargin(), 0, 0, w, h, Nexus:GetColor("primary-text"), nil, true)
     end
 end
 
@@ -46,6 +46,8 @@ function PANEL:SetEnabled( enabled )
     end
 
     self.Enabled = enabled
+
+    self:InvalidateLayout()
 end
 
 function PANEL:Setup( barSize, canvasSize )
@@ -53,6 +55,9 @@ function PANEL:Setup( barSize, canvasSize )
     self.CanvasSize = math.max( canvasSize - barSize, 1 )
 
     self:SetEnabled( canvasSize > barSize )
+
+    self:GetParent().CanvasPanel.shouldReform = true
+    self:GetParent().CanvasPanel:InvalidateLayout()
 
     self:InvalidateLayout()
 end
@@ -145,7 +150,7 @@ function PANEL:PerformLayout( w, h )
 end
 
 function PANEL:Paint( w, h )
-	Nexus.RDNX.Draw(Nexus:GetMargin(), 0, 0, w, h, Nexus:GetColor("header"), false, false, true, true)
+	Nexus.RDNX.Draw(Nexus:GetMargin(), 0, 0, w, h, Nexus:GetColor("header"), nil, true)
 end
 
 vgui.Register( "Nexus:V2:HorizontalScrollBar", PANEL, "DPanel" )

@@ -20,9 +20,9 @@ function PANEL:Init()
         local tall = h
         self.Container.CurValue = math.Approach(self.Container.CurValue, self:GetState() and w-tall or 0, FrameTime()*350)
 
-        Nexus.RNDX.Draw(tall/2, 1, (h/2) - (tall/2), w-2, tall, self:GetState() and Nexus:GetColor("green") or Nexus:GetColor("red"))
+        Nexus.RNDX.Draw(tall/2, 1, (h/2) - (tall/2), w-2, tall, self:GetState() and Nexus:GetColor("green") or Nexus:GetColor("red"), nil, true)
 
-        Nexus.RNDX.Draw(tall/2, self.Container.CurValue, (h/2) - (tall/2), tall, tall, Nexus:GetColor("secondary-2"))
+        Nexus.RNDX.Draw(tall/2, self.Container.CurValue, (h/2) - (tall/2), tall, tall, Nexus:GetColor("secondary-2"), nil, true)
 
         if s:IsHovered() then
             self.HoverFrac = math.min(1, self.HoverFrac+FrameTime()*5)
@@ -59,7 +59,7 @@ function PANEL:GetFont()
 end
 
 function PANEL:Paint(w, h)
-    draw.SimpleText(self:GetText(), self:GetFont(), self.Container:GetWide() + Nexus:GetMargin(), h/2, Nexus:GetColor("primary-text"), 0, 1)
+    draw.SimpleText(self:GetText(), self:GetFont(), self.Container:GetWide() + Nexus:GetMargin(), h/2, Nexus:GetTextColor(Nexus:GetColor("background")), 0, 1)
 end
 
 function PANEL:OnChange(state)

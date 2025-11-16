@@ -10,11 +10,15 @@ function PANEL:Init()
     self.Scroll = self:Add("Nexus:V2:HorizontalScrollPanel")
     self.Scroll:Dock(FILL)
 
-    local old = self.Scroll:GetCanvas().PerformLayout or function() end
+    local lastH = -1
+    local old = self.Scroll:GetCanvas().PerformLayout
     self.Scroll:GetCanvas().PerformLayout = function(s, w, h)
-        old(s, w, h)
+        if not self.shouldReform then return end
+        self.shouldReform = false
 
-        local buttonHeight = self.Scroll:GetVBar():GetTall() > 0 and (h - Nexus:GetMargin()) or h
+        local buttonHeight = h
+        lastH = buttonHeight
+
         surface.SetFont(Nexus:GetFont({size = math.Round(buttonHeight*.5), dontScale = true}))
         local size = (h - Nexus:GetMargin("small")*2)*.75
 
@@ -29,6 +33,8 @@ function PANEL:Init()
             button:SetSize(tw + Nexus:GetMargin()*2, buttonHeight)
             x = x + button:GetWide() + Nexus:GetMargin()
         end
+
+        self.Scroll:GetCanvas():SetWide(x)
     end
 end
 
@@ -50,56 +56,38 @@ function PANEL:AddItem(text, func, icon, id)
     local overlayFrac = 0
     local textFrac = 0
 
-    local button = self.Scroll:Add("DButton")
+    local button = self.Scroll:Add("Nexus:V2:Button")
     button:SetTall(Nexus:GetScale(30))
-    button:SetText("")
+    button:SetText(text)
+    button:SetColor(color_zero)
+    if icon then
+        button:SetIcon(icon)
+    end
 
     local textWidth = -1
+    local old = button.Paint
     button.Paint = function(s, w, h)
+        old(s, w, h)
+
         if self.active == id then
             bgFrac = math.min(1, bgFrac+FrameTime()*5)
-            textFrac = math.min(1, textFrac+FrameTime()*5)
         else
             bgFrac = math.max(0, bgFrac-FrameTime()*5)
         end
         hoverColor = color_zero:Lerp(Nexus:GetColor("green"), bgFrac)
-        Nexus.RDNX.Draw(Nexus:GetMargin(), 0, h - Nexus:GetScale(2), w, 2, hoverColor)
 
-        if s:IsHovered() then
-            overlayFrac = math.min(1, overlayFrac+FrameTime()*5)
-            textFrac = math.min(1, textFrac+FrameTime()*5)
-        else
-            overlayFrac = math.max(0, overlayFrac-FrameTime()*5)
-        end
-        bgColor = color_zero:Lerp(Nexus:GetColor("overlay"), overlayFrac)
-        Nexus.RDNX.Draw(Nexus:GetMargin(), 0, h - Nexus:GetScale(2), w, 2, bgColor)
-
-        if not (s:IsHovered() or self.active == id) then
-            textFrac = math.max(0, textFrac-FrameTime()*5)
-        end
-
-        local wantedColor = self.active == id and Nexus:GetColor("primary-text")
-            or s:IsHovered() and Nexus:GetColor("primary-text")
-            or Nexus:GetColor("secondary-text")
-
-        local lerpedTextColor = textColor:Lerp(wantedColor, textFrac)
-
-        if textWidth == -1 then
-            surface.SetFont(Nexus:GetFont({size = math.Round(h*.5), dontScale = true}))
-            textWidth, _ = surface.GetTextSize(text)            
-        end
-
-        local size = (h - Nexus:GetMargin("small")*2)*.75
-        local x = (w/2) - (textWidth + (icon and size + Nexus:GetMargin("small") or 0))/2
-        if icon then
-            Nexus:DrawImgur(icon, x, (h/2) - (size/2), size, size, lerpedTextColor)
-            x = x + size + Nexus:GetMargin("small")
-        end
-
-        draw.SimpleText(text, Nexus:GetFont({size = math.Round(h*.5), dontScale = true}), x, (h/2), lerpedTextColor, 0, 1)
+        Nexus.Masks.Start()
+            Nexus.RDNX.Draw(Nexus:GetMargin(), 0, h - Nexus:GetScale(2), w, 2, hoverColor)
+        Nexus.Masks.Source()
+            Nexus.RNDX.Draw(s:IsHovered() and Nexus:GetMargin() or 0, 0, 0, w, h, color_white)
+        Nexus.Masks.End()
     end
+
     button.OnSizeChanged = function(s)
         textWidth = -1
+    end
+    button.PerformLayout = function(s, w, h)
+        button:SetFont(Nexus:GetFont({size = math.Round(h*.5), dontScale = true}))
     end
 
     button.values = {text = text, icon = icon}
@@ -149,10 +137,12 @@ function PANEL:SelectItem(id)
     end
 end
 
-function PANEL:OnChange(panel, panelStr)
-    
+function PANEL:OnChange(panel, panelStr)    
 end
 
+function PANEL:PerformLayout(w, h)
+    self.shouldReform = true
+end
 
 function PANEL:Paint(w, h)
 //    Nexus.RNDX.Draw(Nexus:GetMargin(), 0, 0, w, h, Nexus:GetColor("overlay"))

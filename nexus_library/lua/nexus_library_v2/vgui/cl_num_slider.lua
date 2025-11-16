@@ -23,8 +23,8 @@ function PANEL:Init()
     self.Slider = self:Add("DPanel")
     self.Slider:Dock(FILL)
     self.Slider.Paint = function(s, w, h)
-        Nexus.RDNX.Draw(Nexus:GetMargin(), 0, h*.1, w, h*.8, Nexus:GetColor("secondary-2"))
-        Nexus.RDNX.Draw(Nexus:GetMargin(), 0, h*.1, self.Slider.Button:GetX() + self.Slider.Button:GetWide()/2, h*.8+1, Nexus:OffsetColor(Nexus:GetColor("primary"), -30, true))
+        Nexus.RDNX.Draw(Nexus:GetMargin(), 0, h*.1, w, h*.8, Nexus:GetColor("secondary-2"), nil, true)
+        Nexus.RDNX.Draw(Nexus:GetMargin(), 0, h*.1, self.Slider.Button:GetX() + self.Slider.Button:GetWide()/2, h*.8+1, Nexus:OffsetColor(Nexus:GetColor("primary"), -30, true), nil, true)
         s.Wide = w
     end
     self.Slider.PerformLayout = function(s, w, h)
@@ -34,7 +34,7 @@ function PANEL:Init()
     self.Slider.Button = self.Slider:Add("DButton")
     self.Slider.Button:SetText("")
     self.Slider.Button.Paint = function(s, w, h)
-        draw.RoundedBox(Nexus:GetMargin(), 0, 0, h, h, Nexus:GetColor("primary"))
+        Nexus.RNDX.Draw(Nexus:GetMargin(), 0, 0, h, h, Nexus:GetColor("primary"), nil, true)
 
         local size = h*.5
         Nexus:DrawImgur("VcYwaxt", w/2, h/2, size, size, color_black, 90)

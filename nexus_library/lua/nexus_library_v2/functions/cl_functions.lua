@@ -26,6 +26,11 @@ end)
 
 local openDermaMenu
 
+function Nexus:ShouldBLUR()
+    return Nexus.RNDX.BLUR
+end
+
+local color_zero = Color(0, 0, 0, 0)
 function Nexus:DermaMenu(tbl, onClicked, noSort, panel, alignLeft)
     if not tbl or not istable(tbl) then return end
 
@@ -54,10 +59,15 @@ function Nexus:DermaMenu(tbl, onClicked, noSort, panel, alignLeft)
     
     openDermaMenu = vgui.Create("Panel")
     openDermaMenu:SetPos(panel and pnlX or x + scale, panel and pnlY + panel:GetTall() or y - Nexus:GetScale(15))
+
+    local col = table.Copy(Nexus:GetColor("secondary"))
+    col.a = 150
     openDermaMenu:MakePopup()
     openDermaMenu:DockPadding(margin, margin, margin, margin)
     openDermaMenu.Paint = function(s, w, h)
-        draw.RoundedBoxEx(margin, 0, 0, w, h, Nexus:GetColor("secondary-2"), true, true, true, true)
+        Nexus.RNDX.Draw(margin, 0, 0, w, h, color_white, Nexus.RNDX.BLUR)
+        Nexus.RNDX.Draw(margin, 0, 0, w, h, Nexus:GetColor("overlay"))
+        Nexus.RNDX.Draw(margin, 0, 0, w, h, col)
     end
 
     openDermaMenu:SetAlpha(0)
@@ -74,13 +84,14 @@ function Nexus:DermaMenu(tbl, onClicked, noSort, panel, alignLeft)
     local widest = 0
     local buttons = {}
     for k, v in ipairs(tbl) do
-        local button = scroll:Add("DButton")
+        local button = scroll:Add("Nexus:V2:Button")
         button:Dock(TOP)
         button:DockMargin(0, 0, margin * 0.5, margin * 0.5)
         button:SetText(istable(v) and tostring(v.text) or tostring(v))
         button:SetFont(Nexus:GetFont({size = 15}))
         button:SetTextColor(Nexus:GetTextColor(Nexus:GetColor("secondary")))
         button:SizeToContents()
+        button:SetColor(color_zero)
         if alignLeft then
             button:SetContentAlignment(4)
             button:SetTextInset(Nexus:GetMargin(), 0)
@@ -95,12 +106,6 @@ function Nexus:DermaMenu(tbl, onClicked, noSort, panel, alignLeft)
         button:SetAlpha(0)
         button:AlphaTo(255, animTime, k * 0.02)
 
-        button.Paint = function(s, w, h)
-            if s:IsHovered() then
-                Nexus.RDNX.Draw(Nexus:GetMargin(), 0, 0, w, h, Nexus:GetColor("overlay"))
-            end
-        end
-        
         button.DoClick = function(s)
             surface.PlaySound("ui/buttonclick.wav")
             openDermaMenu:AlphaTo(0, animTime, 0, function()
@@ -153,7 +158,7 @@ function Nexus:DermaMenu(tbl, onClicked, noSort, panel, alignLeft)
     return openDermaMenu
 end
 
-local black = Color(255, 255, 255, 30)
+local bgCol = Color(0, 0, 0, 150)
 function Nexus:QueryPopup(str, onYes, onNo, yesText, noText)
     if isstring(str) and isstring(onYes) and isfunction(onNo) then
         Nexus:LegacyPopup(str, onYes, onNo)
@@ -169,8 +174,8 @@ function Nexus:QueryPopup(str, onYes, onNo, yesText, noText)
     background:SetSize(ScrW(), ScrH())
     background:MakePopup()
     background.Paint = function(s, w, h)
-        Nexus.RNDX.Draw(0, 0, 0, w, h, nil, Nexus.RNDX.BLUR)
-        Nexus.RNDX.Draw(0, 0, 0, w, h, black)
+        Nexus.RNDX.Draw(0, 0, 0, w, h, color_white, Nexus.RNDX.BLUR)
+        Nexus.RNDX.Draw(0, 0, 0, w, h, bgCol)
     end
 
     local frame = background:Add("Nexus:V2:Frame")
@@ -355,8 +360,8 @@ function Nexus:LoadLanguage(lang, callback)
     loadingFrame.loaded = 0
     loadingFrame.callback = callback
     loadingFrame.Paint = function(s, w, h)
-        draw.RoundedBox(Nexus:GetMargin("normal"), 0, 0, w, h, Nexus:GetColor("background"))
-        draw.SimpleText(string.format(Nexus:GetInstalledText(lang, "Loading Language Package"), s.loaded, table.Count(Nexus.Languages)), Nexus:GetFont({size = 20}), w/2, h/2, Nexus:GetColor("primary-text"), 1, 1)
+        Nexus.RNDX.Draw(Nexus:GetMargin("normal"), 0, 0, w, h, Nexus:GetColor("background"),nil, true)
+        draw.SimpleText(string.format(Nexus:GetInstalledText(lang, "Loading Language Package"), s.loaded, table.Count(Nexus.Languages)), Nexus:GetFont({size = 20}), w/2, h/2, Nexus:GetTextColor(Nexus:GetColor("background")), 1, 1)
     end
     timer.Simple(60, function()
         if IsValid(loadingFrame) then
@@ -471,11 +476,11 @@ hook.Add("InitPostEntity", "Nexus:LoadLanguage", function()
         Nexus:LoadLanguage(value, function() end)
     end
 
-    local isSuperadmin = false
-    isSuperadmin = CAMI and CAMI.InheritanceRoot(LocalPlayer():GetUserGroup()) == "superadmin" or isSuperadmin
-    isSuperadmin = not isSuperadmin and LocalPlayer() == "superadmin" or isSuperadmin
-    if isSuperadmin and !Nexus:GetSetting("nexus-cu", false) then
-        Nexus:Notification("Notification", "nexus_config [Nexus Core] has new config options (02/05/2025)")
-        Nexus:SetSetting("nexus-cu", true)
-    end
+    //local isSuperadmin = false
+    //isSuperadmin = CAMI and CAMI.InheritanceRoot(LocalPlayer():GetUserGroup()) == "superadmin" or isSuperadmin
+    //isSuperadmin = not isSuperadmin and LocalPlayer() == "superadmin" or isSuperadmin
+    //if isSuperadmin and !Nexus:GetSetting("nexus-cu", false) then
+    //    Nexus:Notification("Notification", "nexus_config [Nexus Core] has new config options (02/05/2025)")
+    //    Nexus:SetSetting("nexus-cu", true)
+    //end
 end)
