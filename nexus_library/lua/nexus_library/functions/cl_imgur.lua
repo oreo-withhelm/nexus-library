@@ -65,11 +65,60 @@ function Nexus:ParseURL( s )
 	return s, iconType
 end
 
+local proxyURL = false
+local function ImgurDownload(id)
+    local function onError()
+        print("[ Nexus ] Imgur: FAILED TO FETCH IMAGE: "..id)
+
+        http.Fetch(proxyURL..id, function(b, len, head, code)
+            if code != 200 or len == 34641 then print("[ Nexus ] Proxy: FAILED IMAGE SAVE: "..id) return end // not valid in our region
+
+            Nexus:SaveData( nil, "nexus_v2", id, b, false, "png" )
+            Nexus.Materials[ id ] = Material( "../data/nexus_v2/" .. id .. ".png", "noclamp smooth mips")
+            print("[ Nexus ] Proxy: SAVED IMAGE: "..id)
+        end, function(error)
+            print("[ Nexus ] Proxy: FAILED TO FETCH IMAGE: "..id)
+        end)
+    end
+
+    http.Fetch( "https://i.imgur.com/" .. id .. ".png", function(b, len, head, code)
+        if code != 200 or len == 34641 then onError() return end // not valid image
+
+        Nexus:SaveData( nil, "nexus_v2", id, b, false, "png" )
+        Nexus.Materials[ id ] = Material( "../data/nexus_v2/" .. id .. ".png", "noclamp smooth mips")
+        print("[ Nexus ] Imgur: SAVED IMAGE: "..id)
+    end, function(error)
+        onError()
+    end)
+end
+
+local imgurQueue = {}
+local function FetchURL()
+    HTTP({
+        method = "GET",
+        url = "https://raw.githubusercontent.com/oreo-withhelm/static-data/refs/heads/main/vps-ip.txt",
+        headers = {},
+        success = function(code, body, headers)
+            if !code == 200 then return end
+            local url = string.Trim(body)
+            url = string.Replace(url, ":3050/translate", ":3002/proxy?id=")
+            proxyURL = url
+
+            for _, id in pairs(imgurQueue) do
+                ImgurDownload(id)
+            end
+
+            imgurQueue = {}
+        end,
+        failed = function(error)
+        end
+    })
+end
+FetchURL()
+
 Nexus.Materials = {}
 function Nexus:GetImgur( id )
     id, iconType = self:ParseURL( id )
-    id = string.lower(id)
-    local url = id
 
     if self.Materials[ id ] then return self.Materials[ id ] end
     self.Materials[ id ] = Material( "color" )
@@ -83,75 +132,13 @@ function Nexus:GetImgur( id )
         return self.Materials[ id ]
     end
 
-    local function ImgurDownload()
-        http.Fetch("https://i.imgur.com/"..id..".png", function(b, len, head, code)
-            if code != 200 or len == 34641 then print("[ Nexus ] Imgur: FAILED IMAGE SAVE: "..id) return end // not valid in our region
-
-            self:SaveData( nil, "nexus_v2", id, b, false, "png" )
-            self.Materials[ id ] = Material( "../data/nexus_v2/" .. id .. ".png", "noclamp smooth mips")
-            print("[ Nexus ] Imgur: SAVED IMAGE: "..id)
-        end, function(error)
-            print("[ Nexus ] Imgur: FAILED TO FETCH IMAGE: "..id)
-        end)
-    end
-
-    local function GithubDownload()
-        local url = ("https://raw.githubusercontent.com/oreo-withhelm/nexus-imgur/main/"..id..".png")
-        http.Fetch(
-            url,
-            function(body, len, headers, code)
-                if code != 200 then ImgurDownload() print("[ Nexus ] Github: INVALID RESPONSE: "..id) return end
-
-                local f = file.Open("nexus_v2/"..id..".png", "wb", "DATA")
-                if f then
-                    f:Write(body)
-                    f:Close()
-                    print("[ Nexus ] Github: SAVED IMAGE: "..id)
-                else
-                    print("[ Nexus ] Github: FAILED IMAGE SAVE: "..id)
-                end
-
-                self.Materials[id] = Material("../data/nexus_v2/" .. id .. ".png", "noclamp smooth mips")
-            end,
-            function(error)
-                print("[ Nexus ] Github: FAILED TO FETCH IMAGE: "..id)
-            end
-        )
-    end
---[[
-    local function DiscordDownload()
-        url = "https://"..url
-        print(url)
-        print("https://cdn.discordapp.com/attachments/534843100976119808/1430168582985093313/Screenshot_20251021_063948_Facebook.jpg?ex=6900b4c9&is=68ff6349&hm=86589249a7a296ff21e85503e214e60314b44c44989480500f3cddb0dbe55461&=&format=png&width=1129&height=858")
-        http.Fetch(
-            url,
-            function(body, len, headers, code)
-                if code != 200 then print("[ Nexus ] Discord: INVALID RESPONSE: "..id) return end
-
-                local f = file.Open("nexus/"..id..".png", "wb", "DATA")
-                if f then
-                    f:Write(body)
-                    f:Close()
-                    print("[ Nexus ] Discord: SAVED IMAGE: "..id)
-                else
-                    print("[ Nexus ] Discord: FAILED IMAGE SAVE: "..id)
-                end
-
-                self.Materials[id] = Material("../data/nexus/" .. id .. ".png", "noclamp smooth mips")
-            end,
-            function(error)
-                print("[ Nexus ] Discord: FAILED TO FETCH IMAGE: "..id)
-            end
-        )
-    end
---]]
-    if iconType == "imgur" then
-        GithubDownload()
+    if not proxyURL then
+        table.insert(imgurQueue, id)
         return self.Materials[id]
     end
 
-    //DiscordDownload()
-    GithubDownload()
+    ImgurDownload(id)
+
     return self.Materials[id]
 end
 

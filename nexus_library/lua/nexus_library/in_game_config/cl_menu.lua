@@ -599,7 +599,7 @@ function PANEL:AddTable(tbl, func)
     form:DockMargin(0, 0, 0, 0)
 
     local elements = {}
-    for k, v in ipairs(tbl.values) do
+    for k, v in ipairs(isfunction(tbl.values) and tbl.values() or tbl.values) do
         form:AddColumn(v.placeholder or "")
 
         if v.type == "TextEntry" then
@@ -641,7 +641,7 @@ function PANEL:AddTable(tbl, func)
 
     for _, args in pairs(data) do
         local packedDATA = {}
-        for k, v in ipairs(tbl.values) do
+        for k, v in ipairs(isfunction(tbl.values) and tbl.values() or tbl.values) do
             packedDATA[k] = args[v.id]
         end
 

@@ -24,17 +24,18 @@ function PANEL:Init()
     self.Slider:Dock(FILL)
     self.Slider.Paint = function(s, w, h)
         Nexus.RDNX.Draw(Nexus:GetMargin(), 0, h*.1, w, h*.8, Nexus:GetColor("secondary-2"), nil, true)
-        Nexus.RDNX.Draw(Nexus:GetMargin(), 0, h*.1, self.Slider.Button:GetX() + self.Slider.Button:GetWide()/2, h*.8+1, Nexus:OffsetColor(Nexus:GetColor("primary"), -30, true), nil, true)
+        Nexus.RDNX.Draw(Nexus:GetMargin(), 0, h*.1, self.Slider.Button:GetX() + self.Slider.Button:GetWide()/2, h*.8+1, Nexus:OffsetColor(self.bgCol, -30, true), nil, true)
         s.Wide = w
     end
     self.Slider.PerformLayout = function(s, w, h)
         self.Slider.Button:SetSize(h, h)
     end
 
+    self.bgCol = Nexus:GetColor("primary")
     self.Slider.Button = self.Slider:Add("DButton")
     self.Slider.Button:SetText("")
     self.Slider.Button.Paint = function(s, w, h)
-        Nexus.RNDX.Draw(Nexus:GetMargin(), 0, 0, h, h, Nexus:GetColor("primary"), nil, true)
+        Nexus.RNDX.Draw(Nexus:GetMargin(), 0, 0, h, h, self.bgCol, nil, true)
 
         local size = h*.5
         Nexus:DrawImgur("VcYwaxt", w/2, h/2, size, size, color_black, 90)
@@ -58,7 +59,7 @@ function PANEL:Init()
         local oldNum = self.number
 
         if not s.IsPressed then return end
-        if not input.IsMouseDown(MOUSE_LEFT) then s.IsPressed = false return end
+        if not input.IsMouseDown(MOUSE_LEFT) then s.IsPressed = false self:OnDrop() return end
         local x, y = self.Slider:LocalCursorPos()
         x = x - (s:GetWide()/2)
         x = math.Clamp(x, 0, self.Slider.Wide - s.Wide)
@@ -78,6 +79,13 @@ function PANEL:Init()
 
         s:SetX(x)
     end
+end
+
+function PANEL:OnDrop()
+end
+
+function PANEL:SetColor(col)
+    self.bgCol = col
 end
 
 function PANEL:SetValue(num)

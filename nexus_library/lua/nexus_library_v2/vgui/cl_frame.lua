@@ -1,12 +1,77 @@
 local color_zero = Color(0, 0, 0, 0)
+
+function Nexus:OpenSettings()
+    if IsValid(self.SettingsFrame) then
+        self.SettingsFrame:Remove()
+    end
+
+    self.SettingsFrame = vgui.Create("Nexus:V2:Frame")
+    self.SettingsFrame:SetSize(Nexus:GetScale(300), Nexus:GetScale(300))
+    self.SettingsFrame:Center()
+    self.SettingsFrame:MakePopup()
+    self.SettingsFrame.OnRefresh = function() Nexus:OpenSettings() end
+
+    local languages = self.SettingsFrame:Add("Nexus:V2:ComboBox")
+    languages:Dock(TOP)
+    languages:DockMargin(Nexus:GetMargin(), Nexus:GetMargin(), Nexus:GetMargin(), 0)
+    languages:SetText(Nexus:GetSetting("nexus_language", "en"))
+    for _, value in ipairs(Nexus:GetLanguages()) do
+        languages:AddChoice(value, function()
+            if not Nexus:IsLanguageLoaded(value) then
+                Nexus:QueryPopup(string.format(Nexus:GetInstalledText(value, "download"), value), function()
+                    Nexus:LoadLanguage(value, function(success)
+                        Nexus:SetSetting("nexus_language", value)
+                    end)
+                end, nil, Nexus:GetInstalledText(value, "yes"), Nexus:GetInstalledText(value, "no"))
+
+                return
+            end
+
+            Nexus:SetSetting("nexus_language", value)
+        end)
+    end
+
+    local themes = self.SettingsFrame:Add("Nexus:V2:ComboBox")
+    themes:Dock(TOP)
+    themes:DockMargin(Nexus:GetMargin(), Nexus:GetMargin(), Nexus:GetMargin(), 0)
+    themes:SetText(Nexus:GetSetting("nexus_theme", "default"))
+    for themeID, _ in pairs(Nexus:GetThemes()) do
+        themes:AddChoice(themeID, function()
+            Nexus:SetSetting("nexus_theme", themeID)
+            if IsValid(self.SettingsFrame) then
+                self.SettingsFrame:OnRefresh()
+            end
+        end)
+    end
+
+    local tbl = {
+        Nexus:GetPhrase("Default", "nexus_lib") or "",
+        Nexus:GetPhrase("Thin", "nexus_lib") or "",
+    }
+
+    local uiSizes = self.SettingsFrame:Add("Nexus:V2:ComboBox")
+    uiSizes:Dock(TOP)
+    uiSizes:DockMargin(Nexus:GetMargin(), Nexus:GetMargin(), Nexus:GetMargin(), 0)
+    uiSizes:SetText(tbl[Nexus:GetSetting("nexus-UISize", 0)+1])
+    for sizeID, sizeText in ipairs(tbl) do
+        uiSizes:AddChoice(sizeText, function()
+            Nexus:SetSetting("nexus-UISize", sizeID-1)
+            if IsValid(self.SettingsFrame) then
+                self.SettingsFrame:OnRefresh()
+            end
+        end)
+    end
+end
+
 local PANEL = {}
 function PANEL:Init()
     self.Roundness = Nexus:GetMargin("large")
+    self.UISize = Nexus:GetSetting("nexus-UISize", 0)
 
     self.Header = self:Add("DPanel")
     self.Header:Dock(TOP)
     self.Header:DockPadding(Nexus:GetMargin("large"), Nexus:GetMargin(), Nexus:GetMargin("large"), Nexus:GetMargin())
-    self.Header:SetTall(Nexus:GetScale(50))
+    self.Header:SetTall(self.UISize == 1 and Nexus:GetScale(35) or Nexus:GetScale(50))
     self.Header.Paint = function(s, w, h)
         
     end
@@ -42,14 +107,16 @@ function PANEL:Init()
             s.Frac = math.max(0, s.Frac-FrameTime()*5)
         end
         s.CurrentColor = color_zero:Lerp(Nexus:GetColor("highlight"), s.Frac)
-        Nexus.RDNX.Draw(Nexus:GetMargin(), 0, 0, w, h, s.CurrentColor, nil, true)
 
-        local tall = h - Nexus:GetMargin()*2
-        local wide = w - Nexus:GetMargin()*2
-        Nexus:DrawImgur(self.logo, Nexus:GetMargin(), Nexus:GetMargin(), wide, tall)
+        local margin = Nexus:GetMargin(self.UISize == 1 and "small" or "normal")
+        Nexus.RDNX.Draw(margin, 0, 0, w, h, s.CurrentColor, nil, true)
+
+        local tall = h - margin*2
+        local wide = w - margin*2
+        Nexus:DrawImgur(self.logo == "" and "https://imgur.com/KD3QMpr" or self.logo, margin, margin, wide, tall)
     end
     self.Header.TitleBox.Logo.DoClick = function(s)
-        gui.OpenURL("https://www.gmodstore.com/teams/V06g5EAhRaGpHvVnXz5HvA/products")
+        gui.OpenURL(Nexus:GetValue("nexus-link") == "" and "https://www.gmodstore.com/teams/V06g5EAhRaGpHvVnXz5HvA/products" or Nexus:GetValue("nexus-link"))
     end
 
     local col = Nexus:GetColor("secondary")
@@ -69,25 +136,12 @@ function PANEL:Init()
     self.Header.QuickButtons.Buttons = {}
     self.Header.QuickButtons.AddButton = function(s, icon, doClick)
         local frac = 0
-        local button = s:Add("DButton")
+        local button = s:Add("Nexus:V2:Button")
         button:Dock(LEFT)
         button:DockMargin(0, 0, Nexus:GetMargin(), 0)
         button:SetText("")
-        button.Paint = function(s, w, h)
-            Nexus.RDNX.Draw(Nexus:GetMargin(), 0, 0, w, h, Nexus:GetColor("highlight"), nil, true)
-
-            if s:IsHovered() then
-                frac = math.min(1, frac+FrameTime()*5)
-            else
-                frac = math.max(0, frac-FrameTime()*5)
-            end
-            hoverColor = color_zero:Lerp(Nexus:GetColor("overlay"), frac)
-
-            local size = h*.8
-            Nexus:DrawImgur(icon, (w/2) - (size/2), (h/2)-(size/2), size, size)
-
-            Nexus.RDNX.Draw(Nexus:GetMargin(), 0, 0, w, h, hoverColor)
-        end
+        button:SetColor(Nexus:GetColor("highlight"))
+        button:SetIcon(icon, function(h) return h*.8 end)
         button.DoClick = function()
             doClick()
         end
@@ -97,49 +151,24 @@ function PANEL:Init()
         return button
     end
 
-    self:AddHeaderButton("https://imgur.com/e6jSBqi", function()
-        Nexus:DermaMenu(Nexus:GetLanguages(), function(value)
-            if not Nexus:IsLanguageLoaded(value) then
-                Nexus:QueryPopup(string.format(Nexus:GetInstalledText(value, "download"), value), function()
-                    Nexus:LoadLanguage(value, function(success)
-                        if IsValid(self) and success then
-                            Nexus:SetSetting("nexus_language", value)
-                            if IsValid(self) then
-                                self:OnRefresh()
-                            end
-                        end
-                    end)
-                end, nil, Nexus:GetInstalledText(value, "yes"), Nexus:GetInstalledText(value, "no"))
-
-                return
-            end
-
-            Nexus:SetSetting("nexus_language", value)
-            if IsValid(self) then
-                self:OnRefresh()
-            end
-        end)
+    local btn = self:AddHeaderButton("https://imgur.com/e6jSBqi", function()
+        Nexus:OpenSettings()
+        Nexus:SetSetting("nexus_settings_clicked", true)
     end)
-
-    self:AddHeaderButton("eyedropper.png", function()
-        local cols = {}
-        for themeID, _ in pairs(Nexus:GetThemes()) do
-            table.insert(cols, themeID)
-        end
-        Nexus:DermaMenu(cols, function(value)
-            Nexus:SetSetting("nexus_theme", value)
-            if IsValid(self) then
-                self:OnRefresh()
-            end
-        end)
-    end)
+    btn.PaintOver = function(s, w, h)
+        if Nexus:GetSetting("nexus_settings_clicked") then return end
+        local size = h*.75
+        Nexus:DrawImgur("https://imgur.com/061iHd3.png", (w/2) - (size/2), (h/2)-(size/2), size, size)
+    end
 
     local buttonColor = Nexus:GetColor("highlight")
     local textColor = color_black
     local frac = 0
-    self.CloseButton = self.Header:Add("DButton")
+    self.CloseButton = self.Header:Add("Nexus:V2:Button")
     self.CloseButton:Dock(RIGHT)
     self.CloseButton:SetText("")
+    self.CloseButton:SetColor(color_zero)
+    local old = self.CloseButton.Paint
     self.CloseButton.Paint = function(s, w, h)
         Nexus.RDNX.Draw(Nexus:GetMargin(), 0, 0, w, h, buttonColor, nil, true)
 
@@ -155,6 +184,7 @@ function PANEL:Init()
         buttonColor = Nexus:GetColor("highlight"):Lerp(Nexus:GetColor("primary"), frac)
         textColor = Nexus:GetTextColor(s:IsHovered() and Nexus:GetColor("primary") or Nexus:GetColor("background")):Lerp(Nexus:GetColor("background"), frac)
         Nexus.RDNX.Draw(Nexus:GetMargin(), 0, 0, w, h, Nexus:GetColor("overlay"))
+        old(s, w, h)
     end
     self.CloseButton.DoClick = function()
         self:Remove()

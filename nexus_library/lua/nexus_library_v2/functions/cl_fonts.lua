@@ -24,14 +24,14 @@ function Nexus:GetFont(size, dontScale, isBold)
         local dontScale = data.dontScale
         local isBold = data.bold
         local activeFont = data.font or (isBold and "Lato" or "Lato Regular")
-        local name = "NexusV2:"..tostring(size)..":"..(dontScale and "Non" or "Scaled")..(isBold and "Bold" or "NonBold")..(activeFont)
-
+        local weight = data.weight or (isBold and 700 or 500)
+        local name = "NexusV2:"..tostring(size)..":"..(dontScale and "Non" or "Scaled")..("Weight:"..weight)..(activeFont)
         if fontCacheV2[name] then return name end
 
         surface.CreateFont(name, {
             font = activeFont,
             size = dontScale and size or Nexus:GetScale(size),
-            weight = isBold and 700 or 100,
+            weight = weight,
             extended = true,
             antialias = true,
         })

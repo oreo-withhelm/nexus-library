@@ -66,7 +66,7 @@ function PANEL:OnMouseReleased(mousecode)
 	end
 
 	if (mousecode == MOUSE_LEFT) then
-		self:DoClickInternal()
+        self:DoClickInternal()
 		self:DoClick()
         self.pulse_time = CurTime()
 

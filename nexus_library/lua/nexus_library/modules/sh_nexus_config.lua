@@ -8,6 +8,9 @@ Nexus:AddLanguages("nexus_lib", "en", {
     ["Ok"] = "Ok",
     ["Default Theme"] = "Default theme for Nexus UI",
     ["Edit Ranks"] = "Usergroups that have access to the Nexus Admin Panel.",
+
+    ["Thin"] = "Thin Header",
+    ["Default"] = "Default Header",
 })
 
 Nexus.Builder:Start()
@@ -30,10 +33,21 @@ Nexus.Builder:Start()
 
     :AddTextEntry({
         id = "nexus-logo",
-        label = "Logo",
+        label = "Logo (1590x500)",
         defaultValue = "https://imgur.com/KD3QMpr",
 
         placeholder = "https://imgur.com/KD3QMpr",
+        isNumeric = false,
+
+        onChange = function(value) end,
+    })
+
+    :AddTextEntry({
+        id = "nexus-link",
+        label = "Link",
+        defaultValue = "https://www.gmodstore.com/teams/V06g5EAhRaGpHvVnXz5HvA/products",
+
+        placeholder = "https://www.gmodstore.com/teams/V06g5EAhRaGpHvVnXz5HvA/products",
         isNumeric = false,
 
         onChange = function(value) end,

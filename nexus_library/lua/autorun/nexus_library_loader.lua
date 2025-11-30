@@ -59,7 +59,7 @@ end
 function Nexus:LoadDirectory(dir, loadFirst)
     local curTime = CurTime()
     loadFirst = loadFirst or {}
-    print("\n\n\n[Nexus] loading directory: "..dir.."\n")
+    print("\n[Nexus] loading directory: "..dir)
 
     filesToLoad = {}
     GetDirectoryFiles(dir)
@@ -78,9 +78,10 @@ function Nexus:LoadDirectory(dir, loadFirst)
         Nexus:LoadFile(path)
     end
 
-    print("\n[Nexus] successfully loaded: "..(CurTime()-curTime).."\n\n\n")
+    print("[ Nexus ] Successfully loaded\n")
 end
 
+print("[ Nexus ] VERSION 1.0.0")
 Nexus:LoadDirectory("nexus_library_v2")
 Nexus:LoadDirectory("nexus_library")
 Nexus:LoadDirectory("nexus_library/modules")

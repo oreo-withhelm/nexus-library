@@ -97,7 +97,12 @@ function PANEL:Init()
 end
 
 function PANEL:DoClick()
-    Nexus:DermaMenu(self.Options, function(v, int)
+    if IsValid(self._DermaMenu) then
+        self._DermaMenu:Remove()
+        return
+    end
+
+    self._DermaMenu = Nexus:DermaMenu(self.Options, function(v, int)
         local text, func = v.text, v.func
         self.Selected = text
 		self:SetText(text)

@@ -284,7 +284,6 @@ function Nexus:GetTextColor(color, alpha)
     local luminance = 0.2126 * blendedR + 0.7152 * blendedG + 0.0722 * blendedB
 
     local textCol = luminance > 0.179 and Nexus:GetColor("background-text") or Nexus:GetColor("primary-text")
-    print(alpha)
     if alpha and isbool(alpha) then
         textCol = luminance > 0.179 and Nexus:GetColor("background-secondary-text") or Nexus:GetColor("secondary-text")
     end
